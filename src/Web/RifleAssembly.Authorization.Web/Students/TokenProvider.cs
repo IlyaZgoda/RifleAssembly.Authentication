@@ -1,6 +1,8 @@
 ﻿using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace RifleAssembly.Web.Students
@@ -9,11 +11,14 @@ namespace RifleAssembly.Web.Students
     {
         public string Create(Student student)
         {
-            string secretKey = configuration["Jwt:Secret"]!;
+            string privateKeyXml = configuration["Jwt:Secret"]!;
+            var rsa = RSA.Create();
+            var privateKeyText = File.ReadAllText(privateKeyXml);
+            rsa.FromXmlString(privateKeyText);
 
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+            var privateKey = new RsaSecurityKey(rsa);
 
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var credentials = new SigningCredentials(privateKey, SecurityAlgorithms.RsaSha256);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -25,16 +30,16 @@ namespace RifleAssembly.Web.Students
                         new Claim("lastName", student.LastName),
                         new Claim("middleName", student.MiddleName),
                     ]),
-                Expires = DateTime.UtcNow.AddHours(configuration.GetValue<int>("Jwt:ExpirationsInHours")),
+                Expires = DateTime.UtcNow.AddHours(configuration.GetValue<int>("Jwt:ExpirationInHours")),
                 SigningCredentials = credentials,
                 Issuer = configuration["Jwt:Issuer"],
                 Audience = configuration["Jwt:Audience"],
             };
 
-            var handler = new JsonWebTokenHandler();
-            string token = handler.CreateToken(tokenDescriptor);
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.CreateToken(tokenDescriptor);
 
-            return token;
+            return handler.WriteToken(token);
         }
     }
 }

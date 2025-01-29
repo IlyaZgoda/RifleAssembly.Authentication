@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            RsaProvider rsa = new RsaProvider();
+            var rsa = new RsaProvider();
 
             string projectPath = Directory.GetParent(Directory.GetCurrentDirectory())!.Parent!.Parent!.Parent!.Parent!.FullName;
             string targetSolutionPath = Path.Combine(projectPath, "Web\\RifleAssembly.Authorization.Web\\Keys\\");

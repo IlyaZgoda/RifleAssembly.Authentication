@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography;
+using System.Text;
 
 namespace RifleAssembly.Authorization.KeyGeneration
 {
@@ -6,16 +7,19 @@ namespace RifleAssembly.Authorization.KeyGeneration
     {
         public void Generate(string privateKeyPath, string publicKeyPath)
         {
-            using (var rsa = new RSACryptoServiceProvider(2048))
-            {
-                rsa.PersistKeyInCsp = false;
+            var rsaPrivate = new RSACryptoServiceProvider();
+            var rsaPublic = new RSACryptoServiceProvider();
+            rsaPrivate.PersistKeyInCsp = false;
+            rsaPublic.PersistKeyInCsp = false;
 
-                var privateKey = rsa.ToXmlString(true);
-                File.WriteAllText(privateKeyPath, privateKey);
+            var privateKey = rsaPrivate.ToXmlString(true);
+            var publicKey = rsaPublic.ToXmlString(false);
 
-                var publicKey = rsa.ToXmlString(false);
-                File.WriteAllText(publicKeyPath, publicKey);
-            }
+            using var privateKeyFile = File.Create(privateKeyPath);
+            using var publicKeyFile = File.Create(publicKeyPath);
+
+            privateKeyFile.Write(Encoding.UTF8.GetBytes(privateKey));
+            publicKeyFile.Write(Encoding.UTF8.GetBytes(publicKey));
         }
     }
 }
