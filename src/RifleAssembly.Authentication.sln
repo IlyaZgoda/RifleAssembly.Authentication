@@ -5,11 +5,11 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{570F63D9-1215-4B4D-B891-146267B1D95C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RifleAssembly.Authorization.Web", "Web\RifleAssembly.Authorization.Web\RifleAssembly.Authorization.Web.csproj", "{A2A29A9E-013C-4476-87B7-0F5567F39672}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RifleAssembly.Authentication.Web", "Web\RifleAssembly.Authentication.Web\RifleAssembly.Authentication.Web.csproj", "{A2A29A9E-013C-4476-87B7-0F5567F39672}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "KeyGeneration", "KeyGeneration", "{F27E7F73-7388-44CC-B8B6-072A15F34146}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RifleAssembly.Authorization.KeyGeneration", "KeyGeneration\RifleAssembly.Authorization.KeyGeneration\RifleAssembly.Authorization.KeyGeneration.csproj", "{48734804-4229-485F-8644-C7FC2120E8CA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RifleAssembly.Authentication.KeyGeneration", "KeyGeneration\RifleAssembly.Authentication.KeyGeneration\RifleAssembly.Authentication.KeyGeneration.csproj", "{48734804-4229-485F-8644-C7FC2120E8CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -4,7 +4,6 @@ using RifleAssembly.Authorization.Web.Extensions;
 using RifleAssembly.Authorization.Web.Services;
 using RifleAssembly.Authorization.Web.Students;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace RifleAssembly.Authorization.Web
 {
