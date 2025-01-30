@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 
-namespace RifleAssembly.Web.Extensions
+namespace RifleAssembly.Authorization.Web.Extensions
 {
     public static class ServiceCollectionExtensions
     {

@@ -7,13 +7,11 @@ namespace RifleAssembly.Authorization.KeyGeneration
     {
         public void Generate(string privateKeyPath, string publicKeyPath)
         {
-            var rsaPrivate = new RSACryptoServiceProvider();
-            var rsaPublic = new RSACryptoServiceProvider();
-            rsaPrivate.PersistKeyInCsp = false;
-            rsaPublic.PersistKeyInCsp = false;
+            var rsa = new RSACryptoServiceProvider(2048);
+            rsa.PersistKeyInCsp = false;
 
-            var privateKey = rsaPrivate.ToXmlString(true);
-            var publicKey = rsaPublic.ToXmlString(false);
+            var privateKey = rsa.ToXmlString(true);
+            var publicKey = rsa.ToXmlString(false);
 
             using var privateKeyFile = File.Create(privateKeyPath);
             using var publicKeyFile = File.Create(publicKeyPath);

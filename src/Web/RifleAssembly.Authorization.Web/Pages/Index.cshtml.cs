@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace RifleAssembly.Web.Pages
+namespace RifleAssembly.Authorization.Web.Pages
 {
     public class IndexModel : PageModel
     {

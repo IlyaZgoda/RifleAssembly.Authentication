@@ -1,11 +1,9 @@
-﻿using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 
-namespace RifleAssembly.Web.Students
+namespace RifleAssembly.Authorization.Web.Students
 {
     public class TokenProvider(IConfiguration configuration)
     {
@@ -13,8 +11,8 @@ namespace RifleAssembly.Web.Students
         {
             string privateKeyXml = configuration["Jwt:Secret"]!;
             var rsa = RSA.Create();
-            var privateKeyText = File.ReadAllText(privateKeyXml);
-            rsa.FromXmlString(privateKeyText);
+            var privateKeyString = File.ReadAllText(privateKeyXml);
+            rsa.FromXmlString(privateKeyString);
 
             var privateKey = new RsaSecurityKey(rsa);
 

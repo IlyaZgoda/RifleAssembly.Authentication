@@ -1,27 +1,28 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RifleAssembly.Web.Students;
+using RifleAssembly.Authorization.Web.Services;
 using System.ComponentModel.DataAnnotations;
-using LoginRequest = RifleAssembly.Web.Students.LoginRequest;
+using LoginRequest = RifleAssembly.Authorization.Web.Students.LoginRequest;
 
-namespace RifleAssembly.Web.Controllers
+namespace RifleAssembly.Authorization.Web.Controllers
 {
     [Route("api/[controller]")]
     [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public class AuthenticationController : ControllerBase
     {
-        private readonly TokenProvider _tokenProvider;
+        private readonly Ldap _ldap;
 
-        public AuthenticationController(TokenProvider tokenProvider) =>
-            _tokenProvider = tokenProvider;
+        public AuthenticationController(Ldap ldap) =>
+            _ldap = ldap;
 
         [HttpPost]
         public IActionResult Login([FromBody][Required] LoginRequest loginRequest)
         {
-            var student = new Student("ИМИТ", "4.205-1", "Илья", "Згода", "Константинович");
-            var token = _tokenProvider.Create(student);
+            var token = _ldap.Authenticate(loginRequest.Login, loginRequest.Password);
 
-            return Ok(token);
+            return token is not null? Ok(token) : BadRequest("Incorrect login or password");
         }
     }
 }
