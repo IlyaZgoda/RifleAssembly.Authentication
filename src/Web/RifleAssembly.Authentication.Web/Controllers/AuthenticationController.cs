@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RifleAssembly.Authorization.Web.Services;
+using RifleAssembly.Authorization.Web.Students;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using LoginRequest = RifleAssembly.Authorization.Web.Students.LoginRequest;
 
 namespace RifleAssembly.Authorization.Web.Controllers
@@ -33,9 +35,19 @@ namespace RifleAssembly.Authorization.Web.Controllers
         [HttpGet("user")]
         public IActionResult Process()
         {
-            var user = HttpContext.User;
+            var principal = HttpContext.User;
 
-            return Ok(user);
+            // Извлечение необходимых claim
+            var instituteTitle = principal.FindFirstValue("instituteTitle");
+            var groupTitle = principal.FindFirstValue("groupTitle");
+            var firstName = principal.FindFirstValue(ClaimTypes.Name);
+            var lastName = principal.FindFirstValue(ClaimTypes.Surname);
+            var middleName = principal.FindFirstValue("middleName");
+            var login = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var student = new Student(instituteTitle, groupTitle, firstName, lastName, middleName, login);
+
+            return Ok(student);
         }
     }
 }

@@ -24,9 +24,10 @@ namespace RifleAssembly.Authorization.Web.Students
                     [
                         new Claim("groupTitle", student.GroupTitle),
                         new Claim("instituteTitle", student.InstituteTitle),
-                        new Claim("firstName", student.FirstName),
-                        new Claim("lastName", student.LastName),
+                        new Claim(ClaimTypes.Name, student.FirstName),
+                        new Claim(ClaimTypes.Surname, student.LastName),
                         new Claim("middleName", student.MiddleName),
+                        new Claim(ClaimTypes.NameIdentifier, student.Login)
                     ]),
                 Expires = DateTime.UtcNow.AddHours(configuration.GetValue<int>("Jwt:ExpirationInHours")),
                 SigningCredentials = credentials,

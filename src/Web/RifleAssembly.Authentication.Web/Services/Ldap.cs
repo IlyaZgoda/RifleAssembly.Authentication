@@ -11,8 +11,7 @@ namespace RifleAssembly.Authorization.Web.Services
 
         public string? Authenticate(string login, string password)
         {
-            return _tokenProvider.Create(new Student("Имит", "4.205-1", "Илья", "Згода", "Константинович"));
-            //return null;
+            return _tokenProvider.Create(new Student("Имит", "4.205-1", "Илья", "Згода", "Константинович", "Zgoda.42051"));
         }
     }
 }
