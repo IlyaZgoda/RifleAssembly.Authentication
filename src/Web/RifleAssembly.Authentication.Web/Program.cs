@@ -34,6 +34,8 @@ namespace RifleAssembly.Authorization.Web
                         IssuerSigningKey = new RsaSecurityKey(rsa),
                         ValidIssuer = builder.Configuration["Jwt:Issuer"],
                         ValidAudience = builder.Configuration["Jwt:Audience"],
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
                         ClockSkew = TimeSpan.Zero
                     };
                 });
