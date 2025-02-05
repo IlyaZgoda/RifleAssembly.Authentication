@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
+using RifleAssembly.Authentication.Web.Infrastructure.Services;
 
-namespace RifleAssembly.Authorization.Web.Extensions
+namespace RifleAssembly.Authentication.Web.Extensions
 {
     public static class ServiceCollectionExtensions
     {
@@ -39,6 +40,15 @@ namespace RifleAssembly.Authorization.Web.Extensions
 
                 o.AddSecurityRequirement(securityRequirement);
             });
+
+            return services;
+        }
+
+        public static IServiceCollection AddLdapServices(this IServiceCollection services)
+        {   
+            services.AddKeyedScoped<ILdapService, LdapMock>(LdapServices.Mock);
+            services.AddKeyedScoped<ILdapService, LdapCrossPlatform>(LdapServices.CrossPlatform);
+            services.AddKeyedScoped<ILdapService, LdapWindows>(LdapServices.Windows);
 
             return services;
         }

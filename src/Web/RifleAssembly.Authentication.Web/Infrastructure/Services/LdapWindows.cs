@@ -1,16 +1,16 @@
-﻿using RifleAssembly.Authorization.Web.Students;
+﻿using RifleAssembly.Authentication.Web.Students;
 using System.DirectoryServices;
 using DirectoryEntry = System.DirectoryServices.DirectoryEntry;
 using SearchResult = System.DirectoryServices.SearchResult;
 
-namespace RifleAssembly.Authorization.Web.Services
+namespace RifleAssembly.Authentication.Web.Infrastructure.Services
 {
-    public class Ldap
+    public class LdapWindows : ILdapService
     {
         private readonly TokenProvider _tokenProvider;
 
         private readonly string _ldapPath = "LDAP://stud.asu.ru";
-        public Ldap(TokenProvider tokenProvider) =>
+        public LdapWindows(TokenProvider tokenProvider) =>
             _tokenProvider = tokenProvider;
 
         public string? Authenticate(string login, string password)

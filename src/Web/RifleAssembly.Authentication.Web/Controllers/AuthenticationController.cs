@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RifleAssembly.Authorization.Web.Services;
-using RifleAssembly.Authorization.Web.Students;
+using RifleAssembly.Authentication.Web.Infrastructure.Services;
+using RifleAssembly.Authentication.Web.Students;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
-using LoginRequest = RifleAssembly.Authorization.Web.Students.LoginRequest;
+using LoginRequest = RifleAssembly.Authentication.Web.Students.LoginRequest;
 
-namespace RifleAssembly.Authorization.Web.Controllers
+namespace RifleAssembly.Authentication.Web.Controllers
 {
     [Route("api")]
     [AllowAnonymous]
@@ -14,17 +14,17 @@ namespace RifleAssembly.Authorization.Web.Controllers
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public class AuthenticationController : ControllerBase
     {
-        private readonly Ldap _ldap;
+        private readonly ILdapService _ldap;
 
-        public AuthenticationController(Ldap ldap) =>
+        public AuthenticationController([FromKeyedServices(LdapServices.Mock)] ILdapService ldap) =>
             _ldap = ldap;
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody][Required] LoginRequest loginRequest)
+        public IActionResult Login([FromBody, Required] LoginRequest loginRequest)
         {
             var token = _ldap.Authenticate(loginRequest.Login, loginRequest.Password);
 
-            return token is not null? Ok(token) : BadRequest("Incorrect login or password");
+            return token is not null ? Ok(token) : BadRequest("Incorrect login or password");
         }
     }
 
@@ -37,7 +37,6 @@ namespace RifleAssembly.Authorization.Web.Controllers
         {
             var principal = HttpContext.User;
 
-            // Извлечение необходимых claim
             var instituteTitle = principal.FindFirstValue("instituteTitle");
             var groupTitle = principal.FindFirstValue("groupTitle");
             var firstName = principal.FindFirstValue(ClaimTypes.Name);

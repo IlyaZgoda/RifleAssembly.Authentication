@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using RifleAssembly.Authorization.Web.Extensions;
-using RifleAssembly.Authorization.Web.Services;
-using RifleAssembly.Authorization.Web.Students;
+using RifleAssembly.Authentication.Web.Extensions;
+using RifleAssembly.Authentication.Web.Infrastructure;
 using System.Security.Cryptography;
 
-namespace RifleAssembly.Authorization.Web
+namespace RifleAssembly.Authentication.Web
 {
     public class Program
     {
@@ -15,7 +14,7 @@ namespace RifleAssembly.Authorization.Web
 
             // Add services to the container.
             builder.Services.AddSingleton<TokenProvider>();
-            builder.Services.AddSingleton<Ldap>();
+            builder.Services.AddLdapServices();
             builder.Services.AddRazorPages();
             builder.Services.AddControllers();
 
@@ -34,8 +33,6 @@ namespace RifleAssembly.Authorization.Web
                         IssuerSigningKey = new RsaSecurityKey(rsa),
                         ValidIssuer = builder.Configuration["Jwt:Issuer"],
                         ValidAudience = builder.Configuration["Jwt:Audience"],
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
                         ClockSkew = TimeSpan.Zero
                     };
                 });

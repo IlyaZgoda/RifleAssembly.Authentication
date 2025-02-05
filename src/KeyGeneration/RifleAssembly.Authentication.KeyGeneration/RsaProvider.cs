@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace RifleAssembly.Authorization.KeyGeneration
+namespace RifleAssembly.Authentication.KeyGeneration
 {
     internal class RsaProvider
     {

@@ -1,9 +1,10 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using RifleAssembly.Authentication.Web.Students;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
-namespace RifleAssembly.Authorization.Web.Students
+namespace RifleAssembly.Authentication.Web.Infrastructure
 {
     public class TokenProvider(IConfiguration configuration)
     {
