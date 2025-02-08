@@ -30,16 +30,16 @@ jobs:
           echo "JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }}" > private_key.xml
 
       - name: Build Docker images
-        run: docker-compose build  
+        run: docker-compose -f src/docker-compose.yml build  
 
       - name: Start containers
-        run: docker-compose up -d
+        run: docker-compose -f src/docker-compose.yml up -d
 
       - name: Проверить логи
-        run: docker-compose logs
+        run: docker-compose -f src/docker-compose.yml logs
 
       - name: Shut down containers
-        run: docker-compose down
+        run: docker-compose -f src/docker-compose.yml down
 
       - name: Clean up private key
         run: rm private_key.xml
