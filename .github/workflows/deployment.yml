@@ -3,34 +3,46 @@
 
 name: CI/CD Pipeline
 
-on: 
+on:
   workflow_dispatch:
   push:
-    branches: 
-    - "master" 
+    branches:
+      - "master"
   pull_request:
-    branches: 
-    - "master" 
+    branches:
+      - "master"
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-    - uses: actions/checkout@v4
-    - name: Set up Docker Buildx
-    - uses: docker/setup-buildx-action@v3
-    - name: Create .env file
-    - run: |
-          echo "JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }}" > .env
-    - name: Build Docker images
-    - run: docker-compose build
-    - name: Start containers
-    - run: docker-compose up -d
-    - name: Shut down containers
-    - run: docker-compose down
-    - name: Clean up private key
-    - run: rm private_key.xml
+      # Шаг 1: Клонирование репозитория
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Шаг 2: Настройка Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Шаг 3: Создание .env файла
+      - name: Create .env file
+        run: |
+          echo "JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }}" > private_key.xml
+
+      # Шаг 4: Сборка Docker-образов
+      - name: Build Docker images
+        run: docker-compose build
+
+      # Шаг 5: Запуск контейнеров
+      - name: Start containers
+        run: docker-compose up -d
+
+      # Шаг 6: Остановка контейнеров
+      - name: Shut down containers
+        run: docker-compose down
+
+      # Шаг 7: Удаление временного файла
+      - name: Clean up private key
+        run: rm private_key.xml
     
