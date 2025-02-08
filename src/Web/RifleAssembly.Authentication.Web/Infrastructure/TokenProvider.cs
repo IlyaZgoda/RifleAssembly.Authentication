@@ -10,9 +10,14 @@ namespace RifleAssembly.Authentication.Web.Infrastructure
     {
         public string Create(Student student)
         {
-            string privateKeyXml = configuration["Jwt:Secret"]!;
-            var rsa = RSA.Create();
+
+            //string privateKeyXml = configuration["Jwt:Secret"]!;
+            //var privateKeyString = File.ReadAllText(privateKeyXml);
+
+            var privateKeyXml = Environment.GetEnvironmentVariable("PRIVATE_KEY_PATH")!;
             var privateKeyString = File.ReadAllText(privateKeyXml);
+
+            var rsa = RSA.Create();
             rsa.FromXmlString(privateKeyString);
 
             var privateKey = new RsaSecurityKey(rsa);

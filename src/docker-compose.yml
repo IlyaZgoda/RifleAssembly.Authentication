@@ -1,0 +1,21 @@
+services:
+  rifleassembly.authentication.web:
+    image: rifleassembly-authentication:latest
+    build:
+      context: .
+      dockerfile: Web/RifleAssembly.Authentication.Web/Dockerfile
+    ports:
+      - "8080:8080" 
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - JWT_PRIVATE_KEY_PATH=/secrets/private_key.xml
+    volumes:
+      - ./secrets:/secrets:ro
+    restart: always
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
