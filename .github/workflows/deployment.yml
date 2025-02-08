@@ -35,8 +35,20 @@ jobs:
       - name: Start containers
         run: docker-compose -f src/docker-compose.yml up -d
 
-      - name: Проверить логи
+      - name: Check logs
         run: docker-compose -f src/docker-compose.yml logs
+
+      - name: Test API endpoint
+        run: |
+          echo "Testing API endpoint..."
+          sleep 10 
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/health)
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "API test passed. HTTP Status Code: $RESPONSE"
+          else
+            echo "API test failed. HTTP Status Code: $RESPONSE"
+            exit 1
+          fi
 
       - name: Shut down containers
         run: docker-compose -f src/docker-compose.yml down
