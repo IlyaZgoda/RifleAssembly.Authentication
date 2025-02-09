@@ -28,6 +28,7 @@ namespace RifleAssembly.Authentication.Web
                     string publicKeyXml = builder.Configuration["Jwt:PublicKeyPath"]!;
                     var rsa = RSA.Create();
                     var publicKeyString = File.ReadAllText(publicKeyXml);
+                    Console.WriteLine(publicKeyString);
                     rsa.FromXmlString(publicKeyString);
 
                     o.RequireHttpsMetadata = false;
@@ -43,7 +44,7 @@ namespace RifleAssembly.Authentication.Web
             builder.Services.AddSwaggerGenWithAuth();
 
             var app = builder.Build();
-            app.MapGet("/api/health", () => Results.Ok("Healthy"));
+            
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -53,7 +54,8 @@ namespace RifleAssembly.Authentication.Web
                     swaggerUiOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "RiffleAssembly.Authorization API"));
             }
 
-            app.UseHttpsRedirection();
+            app.MapGet("/api/health", () => Results.Ok("Healthy"));
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 

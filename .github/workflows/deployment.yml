@@ -34,18 +34,22 @@ jobs:
         run: |
           docker-compose -f $COMPOSE_FILE build
           docker-compose -f $COMPOSE_FILE up -d
-          sleep 15  
+
+      - name: Show logs
+        run: |
           docker-compose -f $COMPOSE_FILE logs
 
-      - name: Health check
+      - name: Health Check
         run: |
-          echo "Waiting for service to start..."
-          for i in {1..10}; do
-            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health)
-            [ "$RESPONSE" -eq 200 ] && break
-            sleep 5
-          done
-          [ "$RESPONSE" -eq 200 ] || exit 1
+          echo "Testing API endpoint..."
+          sleep 10 
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/health)
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "API test passed. HTTP Status Code: $RESPONSE"
+          else
+            echo "API test failed. HTTP Status Code: $RESPONSE"
+            exit 1
+          fi
 
       - name: Cleanup
         if: always()

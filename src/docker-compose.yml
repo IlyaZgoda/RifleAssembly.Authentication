@@ -11,8 +11,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - JWT_PRIVATE_KEY_PATH=/secrets/private_key.xml
       - ASPNETCORE_URLS=http://+:8080
-    volumes:
-      - ./secrets:/app/keys:ro
+
+
     restart: always
     networks:
       - app_network
