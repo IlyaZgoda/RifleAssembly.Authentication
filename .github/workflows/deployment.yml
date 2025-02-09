@@ -42,7 +42,7 @@ jobs:
 
       - name: Test API
         run: |
-          STATUS=$(curl -v" http://web:5000/api/health)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://web:5000/api/health)
           if [ $STATUS -ne 200 ]; then
             echo "API test failed. HTTP Status Code: $STATUS"
             exit 1
