@@ -20,39 +20,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Docker Compose
+      - name: Create .env file
         run: |
-          sudo apt update
-          sudo apt install -y docker-compose
-
-      - name: Create .xml file
-        run: |
-          echo "JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }}" > private_key.xml
+          echo "JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }}" > .env
+          echo "CONNECTION_STRING=${{ secrets.CONNECTION_STRING }}" >> .env
 
       - name: Build Docker images
-        run: docker-compose -f src/docker-compose.yml build  
+        run: docker compose -f src/docker-compose.yml build
 
       - name: Start containers
-        run: docker-compose -f src/docker-compose.yml up -d
+        run: docker compose -f src/docker-compose.yml up -d
 
-      - name: Check logs
-        run: docker-compose -f src/docker-compose.yml logs
+      - name: Wait for API to be ready
+        run: sleep 10
 
-      - name: Test API endpoint
+      - name: Check running containers
+        run: docker ps -a
+
+      - name: Check logs if failure occurs
+        if: failure()
+        run: docker compose -f src/docker-compose.yml logs
+
+      - name: Test API
         run: |
-          echo "Testing API endpoint..."
-          sleep 10 
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/health)
-          if [ "$RESPONSE" -eq 200 ]; then
-            echo "API test passed. HTTP Status Code: $RESPONSE"
-          else
-            echo "API test failed. HTTP Status Code: $RESPONSE"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/health)
+          if [ $STATUS -ne 200 ]; then
+            echo "API test failed. HTTP Status Code: $STATUS"
             exit 1
           fi
 
       - name: Shut down containers
-        run: docker-compose -f src/docker-compose.yml down
+        run: docker compose -f src/docker-compose.yml down
 
       - name: Clean up private key
-        run: rm private_key.xml
+        run: rm .env
     
