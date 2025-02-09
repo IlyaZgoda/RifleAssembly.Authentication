@@ -23,7 +23,6 @@ jobs:
       - name: Create .env file
         run: |
           echo "JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }}" > .env
-          echo "CONNECTION_STRING=${{ secrets.CONNECTION_STRING }}" >> .env
 
       - name: Build Docker images
         run: docker compose -f src/docker-compose.yml build
@@ -43,7 +42,7 @@ jobs:
 
       - name: Test API
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/health)
+          STATUS=$(curl -v" http://web:5000/api/health)
           if [ $STATUS -ne 200 ]; then
             echo "API test failed. HTTP Status Code: $STATUS"
             exit 1
