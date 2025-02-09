@@ -12,7 +12,7 @@ services:
       - JWT_PRIVATE_KEY_PATH=/secrets/private_key.xml
       - ASPNETCORE_URLS=http://+:8080
     volumes:
-      - ./secrets:/secrets:ro
+      - ./secrets:/app/keys:ro
     restart: always
     networks:
       - app_network

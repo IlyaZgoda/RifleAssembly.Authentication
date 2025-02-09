@@ -6,52 +6,54 @@ name: CI/CD Pipeline
 on:
   workflow_dispatch:
   push:
-    branches:
-      - "master"
+    branches: [master]
   pull_request:
-    branches:
-      - "master"
+    branches: [master]
+
+env:
+  COMPOSE_FILE: src/docker-compose.yml
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create .env file
+      - name: Setup Docker
+        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-buildx-action@v3
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Prepare secrets
         run: |
-          echo "JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }}" > .env
-          echo "CONNECTION_STRING=${{ secrets.CONNECTION_STRING }}" >> .env
+          mkdir -p secrets
+          echo "${{ secrets.JWT_PRIVATE_KEY }}" > secrets/private_key.xml
+          echo "${{ secrets.JWT_PUBLIC_KEY }}" > secrets/public_key.xml
 
-      - name: Build Docker images
-        run: docker compose -f src/docker-compose.yml build
-
-      - name: Start containers
-        run: docker compose -f src/docker-compose.yml up -d
-
-      - name: Wait for API to be ready
-        run: sleep 10
-
-      - name: Check running containers
-        run: docker ps -a
-
-      - name: Check logs if failure occurs
-        if: failure()
-        run: docker compose -f src/docker-compose.yml logs
-
-      - name: Test API
+      - name: Build and start
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/health)
-          if [ $STATUS -ne 200 ]; then
-            echo "API test failed. HTTP Status Code: $STATUS"
-            exit 1
-          fi
+          docker-compose -f $COMPOSE_FILE build
+          docker-compose -f $COMPOSE_FILE up -d
+          sleep 15  
+          docker-compose -f $COMPOSE_FILE logs
 
-      - name: Shut down containers
-        run: docker compose -f src/docker-compose.yml down
+      - name: Health check
+        run: |
+          echo "Waiting for service to start..."
+          for i in {1..10}; do
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health)
+            [ "$RESPONSE" -eq 200 ] && break
+            sleep 5
+          done
+          [ "$RESPONSE" -eq 200 ] || exit 1
 
-      - name: Clean up private key
-        run: rm .env
+      - name: Cleanup
+        if: always()
+        run: |
+          docker-compose -f $COMPOSE_FILE down
+          rm -rf secrets
     
