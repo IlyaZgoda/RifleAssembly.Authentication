@@ -17,51 +17,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Шаг 1: Клонирование репозитория
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Шаг 2: Установка Docker Compose
-      - name: Install Docker Compose
-        run: |
-          sudo apt update
-          sudo apt install -y docker-compose
-
-      # Шаг 3: Создание временного файла private_key.xml
-      - name: Create private key file
+      - name: Create .env file
         run: |
           echo "JWT_PRIVATE_KEY=${{ secrets.JWT_PRIVATE_KEY }}" > .env
+          echo "CONNECTION_STRING=${{ secrets.CONNECTION_STRING }}" >> .env
 
-      # Шаг 4: Сборка Docker-образа
       - name: Build Docker images
-        run: docker-compose -f src/docker-compose.yml build
+        run: docker compose -f src/docker-compose.yml build
 
-      # Шаг 5: Запуск контейнеров
       - name: Start containers
-        run: docker-compose -f src/docker-compose.yml up -d
+        run: docker compose -f src/docker-compose.yml up -d
 
-      # Шаг 6: Проверка логов контейнера
-      - name: Check container logs
-        run: docker-compose -f src/docker-compose.yml logs rifleassembly.authentication.web
+      - name: Wait for API to be ready
+        run: sleep 10
 
-      # Шаг 7: Тестирование API endpoint
-      - name: Test API endpoint
+      - name: Check running containers
+        run: docker ps -a
+
+      - name: Check logs if failure occurs
+        if: failure()
+        run: docker compose -f src/docker-compose.yml logs
+
+      - name: Test API
         run: |
-          echo "Testing API endpoint..."
-          sleep 20 # Даем время для запуска приложения
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/health)
-          if [ "$RESPONSE" -eq 200 ]; then
-            echo "API test passed. HTTP Status Code: $RESPONSE"
-          else
-            echo "API test failed. HTTP Status Code: $RESPONSE"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/health)
+          if [ $STATUS -ne 200 ]; then
+            echo "API test failed. HTTP Status Code: $STATUS"
             exit 1
           fi
 
-      # Шаг 8: Остановка контейнеров
       - name: Shut down containers
-        run: docker-compose -f src/docker-compose.yml down
+        run: docker compose -f src/docker-compose.yml down
 
-      # Шаг 9: Удаление временного файла private_key.xml
       - name: Clean up private key
-        run: rm ./secrets/private_key.xml
+        run: rm .env
     
