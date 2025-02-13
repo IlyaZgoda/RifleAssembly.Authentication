@@ -39,7 +39,7 @@ jobs:
       - name: Show logs
         shell: cmd
         run: |
-          docker-compose -f $COMPOSE_FILE logs
+          docker-compose -f ${{ env.COMPOSE_FILE }} logs
 
       - name: Health Check
         shell: cmd
