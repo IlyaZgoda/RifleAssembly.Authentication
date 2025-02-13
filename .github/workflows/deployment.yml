@@ -21,28 +21,34 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Stop old containers
+        shell: cmd
         run: docker-compose -f ${{ env.COMPOSE_FILE }} down --rmi local -v --remove-orphans || true
 
       - name: Free port 8080
+        shell: cmd
         run: |
           sudo lsof -ti :8080 | xargs -r sudo kill -9 || true
 
       - name: Prepare secrets
+        shell: cmd
         run: |
           mkdir -p secrets
           echo "${{ secrets.JWT_PRIVATE_KEY }}" > secrets/private_key.xml
           chmod 600 secrets/private_key.xml
 
       - name: Build and start
+        shell: cmd
         run: |
           docker-compose -f ${{ env.COMPOSE_FILE }} build
           docker-compose -f ${{ env.COMPOSE_FILE }} up -d
 
       - name: Show logs
+        shell: cmd
         run: |
           docker-compose -f $COMPOSE_FILE logs
 
       - name: Health Check
+        shell: cmd
         run: |
           echo "Testing API endpoint..."
           sleep 10 
@@ -55,6 +61,7 @@ jobs:
           fi
 
       - name: Cleanup
+        shell: cmd
         if: always()
         run: |
           docker-compose -f $COMPOSE_FILE down
