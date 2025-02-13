@@ -42,18 +42,22 @@ jobs:
           docker-compose -f ${{ env.COMPOSE_FILE }} logs
 
       - name: Health Check
+      - name: Health Check
         shell: cmd
         run: |
-          echo Testing API endpoint...
-          timeout /t 10 /nobreak >nul
-          curl -s -o nul -w "%%{http_code}" http://localhost:8080/api/health > response.txt
-          set /p RESPONSE=<response.txt
-          if "%RESPONSE%"=="200" (
+            echo Testing API endpoint...
+            timeout /t 10 /nobreak >nul
+
+            REM Выполняем запрос и сохраняем HTTP-статус в переменную
+            for /f "delims=" %%R in ('curl -s -o nul -w "%%{http_code}" http://localhost:8080/api/health') do set RESPONSE=%%R
+
+            REM Проверяем статус
+            if "%RESPONSE%"=="200" (
             echo API test passed. HTTP Status Code: %RESPONSE%
-          ) else (
+            ) else (
             echo API test failed. HTTP Status Code: %RESPONSE%
             exit 1
-          )
+            )
 
       - name: Cleanup
         shell: cmd
