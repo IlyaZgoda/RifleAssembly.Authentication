@@ -60,11 +60,4 @@ jobs:
             echo API test failed. HTTP Status Code: %RESPONSE%
             exit /b 1
             )
-
-      - name: Cleanup
-        shell: cmd
-        if: always()
-        run: |
-          docker-compose -f %COMPOSE_FILE% down
-          rmdir /s /q secrets
     
