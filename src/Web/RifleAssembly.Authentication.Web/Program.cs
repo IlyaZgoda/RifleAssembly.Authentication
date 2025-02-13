@@ -54,7 +54,7 @@ namespace RifleAssembly.Authentication.Web
                     swaggerUiOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "RiffleAssembly.Authorization API"));
             }
 
-            app.MapGet("/api/health", () => Results.Ok("Healthy"));
+            app.MapGet("/api/health", () => Results.Ok("Healthy!!!!"));
             //app.UseHttpsRedirection();
 
             app.UseRouting();
