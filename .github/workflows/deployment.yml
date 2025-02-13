@@ -42,7 +42,6 @@ jobs:
           docker-compose -f ${{ env.COMPOSE_FILE }} logs
 
       - name: Health Check
-      - name: Health Check
         shell: cmd
         run: |
             echo Testing API endpoint...
