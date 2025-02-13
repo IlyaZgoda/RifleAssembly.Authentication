@@ -24,17 +24,11 @@ jobs:
         shell: cmd
         run: docker-compose -f ${{ env.COMPOSE_FILE }} down --rmi local -v --remove-orphans || true
 
-      - name: Free port 8080
-        shell: cmd
-        run: |
-          sudo lsof -ti :8080 | xargs -r sudo kill -9 || true
-
       - name: Prepare secrets
         shell: cmd
         run: |
           mkdir -p secrets
           echo "${{ secrets.JWT_PRIVATE_KEY }}" > secrets/private_key.xml
-          chmod 600 secrets/private_key.xml
 
       - name: Build and start
         shell: cmd
@@ -50,20 +44,21 @@ jobs:
       - name: Health Check
         shell: cmd
         run: |
-          echo "Testing API endpoint..."
-          sleep 10 
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/health)
-          if [ "$RESPONSE" -eq 200 ]; then
-            echo "API test passed. HTTP Status Code: $RESPONSE"
-          else
-            echo "API test failed. HTTP Status Code: $RESPONSE"
+          echo Testing API endpoint...
+          timeout /t 10 /nobreak >nul
+          curl -s -o nul -w "%%{http_code}" http://localhost:8080/api/health > response.txt
+          set /p RESPONSE=<response.txt
+          if "%RESPONSE%"=="200" (
+            echo API test passed. HTTP Status Code: %RESPONSE%
+          ) else (
+            echo API test failed. HTTP Status Code: %RESPONSE%
             exit 1
-          fi
+          )
 
       - name: Cleanup
         shell: cmd
         if: always()
         run: |
-          docker-compose -f $COMPOSE_FILE down
-          rm -rf secrets
+          docker-compose -f %COMPOSE_FILE% down
+          rmdir /s /q secrets
     
