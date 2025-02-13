@@ -20,20 +20,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Docker Compose
+      - name: Stop old containers
+        run: docker-compose -f ${{ env.COMPOSE_FILE }} down --rmi local -v --remove-orphans || true
+
+      - name: Free port 8080
         run: |
-          sudo apt update
-          sudo apt install -y docker-compose
+          sudo lsof -ti :8080 | xargs -r sudo kill -9 || true
 
       - name: Prepare secrets
         run: |
           mkdir -p secrets
           echo "${{ secrets.JWT_PRIVATE_KEY }}" > secrets/private_key.xml
+          chmod 600 secrets/private_key.xml
 
       - name: Build and start
         run: |
-          docker-compose -f $COMPOSE_FILE build
-          docker-compose -f $COMPOSE_FILE up -d
+          docker-compose -f ${{ env.COMPOSE_FILE }} build
+          docker-compose -f ${{ env.COMPOSE_FILE }} up -d
 
       - name: Show logs
         run: |
