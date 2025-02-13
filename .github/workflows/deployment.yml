@@ -45,17 +45,20 @@ jobs:
         shell: cmd
         run: |
             echo Testing API endpoint...
-            timeout /t 10 /nobreak >nul
-
-            REM Выполняем запрос и сохраняем HTTP-статус в переменную
-            for /f "delims=" %%R in ('curl -s -o nul -w "%%{http_code}" http://localhost:8080/api/health') do set RESPONSE=%%R
-
+    
+            REM Ждем 10 секунд через ping (альтернатива timeout)
+            ping 127.0.0.1 -n 10 > nul
+    
+            REM Выполняем запрос и сохраняем HTTP-статус
+            curl -s -o nul -w "%%{http_code}" http://localhost:8080/api/health > response.txt
+            set /p RESPONSE=<response.txt
+    
             REM Проверяем статус
             if "%RESPONSE%"=="200" (
             echo API test passed. HTTP Status Code: %RESPONSE%
             ) else (
             echo API test failed. HTTP Status Code: %RESPONSE%
-            exit 1
+            exit /b 1
             )
 
       - name: Cleanup
