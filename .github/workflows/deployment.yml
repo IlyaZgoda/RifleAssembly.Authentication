@@ -85,6 +85,7 @@ jobs:
 
       - name: Debug secrets
         run: | 
+          shell: cmd
           echo "Secret length: ${#JWT_PRIVATE_KEY}"
 
       - name: Cleanup on failure
