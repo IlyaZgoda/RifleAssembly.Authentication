@@ -28,5 +28,5 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 COPY Web/RifleAssembly.Authentication.Web/Keys/public_key.xml /app/keys/public_key.xml
-
+#test
 ENTRYPOINT ["dotnet", "RifleAssembly.Authentication.Web.dll"]
