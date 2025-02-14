@@ -52,6 +52,7 @@ jobs:
           retry: 5
 
       - name: Check response
+        shell: cmd
         run: |
            if ${{ steps.request.outputs.status }}=="200" (
             echo API test passed.
