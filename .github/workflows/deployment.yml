@@ -54,12 +54,12 @@ jobs:
       - name: Check response
         shell: cmd
         run: |
-           if ${{ steps.request.outputs.status }} == 200 (
-            echo API test passed.
-           ) else (
-            echo API test failed.
-            exit /b 1
-           )
-           HTTP Status Code: ${{ steps.request.outputs.status }}
+          if ${{ steps.request.outputs.status }} == 200 (
+           echo API test passed.
+          ) else (
+           echo API test failed.
+           exit /b 1
+          )
+          echo HTTP Status Code: ${{ steps.request.outputs.status }}
           
     
