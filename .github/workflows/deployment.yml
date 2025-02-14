@@ -83,16 +83,15 @@ jobs:
           )
           echo HTTP Status Code: ${{ steps.request.outputs.status }}
 
-      - name: Debug secrets
-        shell: cmd
-        run: |
-          echo "Checking secret presence..."
-          if not "%JWT_PRIVATE_KEY%" == "" (
-            echo Secret exists (length: !JWT_PRIVATE_KEY:~0,3!...!JWT_PRIVATE_KEY:~-3!)
-          ) else (
-            echo Secret is empty!
-            exit /b 1
-          )
+      - name: Check secret via JS
+        uses: actions/github-script@v6
+        with:
+            script: |
+            const secret = process.env.JWT_PRIVATE_KEY;
+            if (!secret) {
+                core.setFailed('JWT_PRIVATE_KEY is empty!');
+            }
+            console.log(`Secret length: ${secret?.length || 0}`);
 
       - name: Cleanup on failure
         if: failure()
