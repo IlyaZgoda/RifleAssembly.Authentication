@@ -13,6 +13,7 @@ on:
 env:
   COMPOSE_FILE: src/docker-compose.yml
   API_URL: http://localhost:8080
+  JWT_PRIVATE_KEY: ${{ secrets.JWT_PRIVATE_KEY }}
 
 jobs:
   build:
@@ -40,9 +41,7 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile', '**/docker-compose.yml') }}
 
       - name: Build and push with Buildx
-        uses: docker/build-push-action@v6
-        env:
-          JWT_PRIVATE_KEY: ${{ secrets.JWT_PRIVATE_KEY }}
+        uses: docker/build-push-action@v6          
         with:
           context: ${{ github.workspace }}/src
           file: ${{ github.workspace }}/src/Web/RifleAssembly.Authentication.Web/Dockerfile
