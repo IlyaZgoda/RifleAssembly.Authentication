@@ -37,7 +37,7 @@ jobs:
             ~/.docker/cache
             src/bin/
             src/obj/
-          key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile', '**/docker-compose.yml') 
+          key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile', '**/docker-compose.yml') }}
 
       - name: Build and push with Buildx
         uses: docker/build-push-action@v5
