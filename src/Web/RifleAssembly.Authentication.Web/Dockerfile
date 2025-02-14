@@ -20,9 +20,8 @@ RUN dotnet build "./RifleAssembly.Authentication.Web.csproj" -c $BUILD_CONFIGURA
 
 RUN --mount=type=secret,id=jwt_private_key \
     mkdir -p /app/keys && \
-    cp /run/secrets/jwt_private_key /app/keys/private_key.xml && \
-    chmod 400 /app/keys/private_key.xml && \
-    dotnet build -c $BUILD_CONFIGURATION -o /app/build
+    echo "$JWT_PRIVATE_KEY" > /app/keys/private_key.xml && \
+    chmod 400 /app/keys/private_key.xml
 
 # Этот этап используется для публикации проекта службы, который будет скопирован на последний этап
 FROM build AS publish
