@@ -86,7 +86,7 @@ jobs:
       - name: Debug secrets
         shell: cmd
         run: |     
-          echo "Secret length: ${#JWT_PRIVATE_KEY}"
+          echo "Secret length: ${{ JWT_PRIVATE_KEY }}"
 
       - name: Cleanup on failure
         if: failure()
