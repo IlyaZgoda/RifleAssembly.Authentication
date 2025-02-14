@@ -44,8 +44,8 @@ jobs:
         env:
           JWT_PRIVATE_KEY: ${{ secrets.JWT_PRIVATE_KEY }}
         with:
-          context: .
-          file: Web/RifleAssembly.Authentication.Web/Dockerfile
+          context: ${{ github.workspace }}
+          file: ${{ github.workspace }}/Web/RifleAssembly.Authentication.Web/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           load: true
           cache-from: type=gha
@@ -85,7 +85,7 @@ jobs:
 
       - name: Cleanup on failure
         if: failure()
-        shell: pwsh
+        shell: cmd
         run: |
           docker-compose -f ${{ env.COMPOSE_FILE }} logs
           docker-compose -f ${{ env.COMPOSE_FILE }} down -v
