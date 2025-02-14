@@ -84,8 +84,8 @@ jobs:
           echo HTTP Status Code: ${{ steps.request.outputs.status }}
 
       - name: Debug secrets
-        run: | 
-          shell: cmd
+        shell: cmd
+        run: |     
           echo "Secret length: ${#JWT_PRIVATE_KEY}"
 
       - name: Cleanup on failure
