@@ -37,9 +37,4 @@ COPY --from=publish /app/publish .
 COPY --from=build /app/keys/private_key.xml /app/keys/
 COPY Web/RifleAssembly.Authentication.Web/Keys/public_key.xml /app/keys/
 
-RUN chmod 444 /app/keys/public_key.xml && \
-    find . -type d -exec chmod 755 {} + && \
-    find . -type f -exec chmod 644 {} + && \
-    chmod +x RifleAssembly.Authentication.Web.dll
-
 ENTRYPOINT ["dotnet", "RifleAssembly.Authentication.Web.dll"]
