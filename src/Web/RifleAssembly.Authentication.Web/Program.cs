@@ -56,7 +56,9 @@ namespace RifleAssembly.Authentication.Web
 
             app.MapGet("/api/health", () => Results.Ok("Healthy!!!!"));
             //app.UseHttpsRedirection();
-
+            var privateKeyXml = Environment.GetEnvironmentVariable("PRIVATE_KEY_PATH")!;
+            var privateKeyString = File.ReadAllText(privateKeyXml);
+            Console.Write(privateKeyString);
             app.UseRouting();
 
             app.UseAuthentication();
