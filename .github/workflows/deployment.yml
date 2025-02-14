@@ -44,8 +44,8 @@ jobs:
         env:
           JWT_PRIVATE_KEY: ${{ secrets.JWT_PRIVATE_KEY }}
         with:
-          context: ${{ github.workspace }}
-          file: ${{ github.workspace }}/src/Web/RifleAssembly.Authentication.Web/Dockerfile
+          context: ${{ github.workspace }}/src
+          file: ${{ github.workspace }}/Web/RifleAssembly.Authentication.Web/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           load: true
           cache-from: type=gha
