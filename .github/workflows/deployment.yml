@@ -87,11 +87,11 @@ jobs:
         uses: actions/github-script@v6
         with:
             script: |
-            const secret = process.env.JWT_PRIVATE_KEY;
-            if (!secret) {
-                core.setFailed('JWT_PRIVATE_KEY is empty!');
-            }
-            console.log(`Secret length: ${secret?.length || 0}`);
+              const secret = process.env.JWT_PRIVATE_KEY;
+              if (!secret) {
+                  core.setFailed('JWT_PRIVATE_KEY is empty!');
+              }
+              console.log(`Secret length: ${secret?.length || 0}`);
 
       - name: Cleanup on failure
         if: failure()
