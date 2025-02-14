@@ -17,7 +17,12 @@ RUN --mount=type=cache,target=/root/.nuget/packages \
     --mount=type=cache,target=/root/.local/share/NuGet/v3-cache \
     dotnet restore "Web/RifleAssembly.Authentication.Web/RifleAssembly.Authentication.Web.csproj"
 
+# Копируем только csproj файлы (уже выполнено на этапе restore)
+COPY --from=restore /src .
+
+# Копируем остальной код
 COPY . .
+
 WORKDIR "/src/Web/RifleAssembly.Authentication.Web"
 RUN --mount=type=secret,id=jwt_private_key \
     mkdir -p /app/keys && \
