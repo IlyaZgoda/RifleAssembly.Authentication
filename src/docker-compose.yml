@@ -4,6 +4,10 @@ services:
     build:
       context: .
       dockerfile: Web/RifleAssembly.Authentication.Web/Dockerfile
+      args:
+        - BUILD_CONFIGURATION=Release
+      secrets:
+        - jwt_private_key
     ports:
       - "8080:8080" 
 
@@ -16,7 +20,22 @@ services:
     restart: always
     networks:
       - app_network
+ 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    secrets:
+      - jwt_private_key
 
 networks:
   app_network:
     driver: bridge
+
+secrets:
+  jwt_private_key:
+    external: true
