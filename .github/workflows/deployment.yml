@@ -85,8 +85,14 @@ jobs:
 
       - name: Debug secrets
         shell: cmd
-        run: |     
-          echo "Secret length: ${{ JWT_PRIVATE_KEY }}"
+        run: |
+          echo "Checking secret presence..."
+          if not "%JWT_PRIVATE_KEY%" == "" (
+            echo Secret exists (length: !JWT_PRIVATE_KEY:~0,3!...!JWT_PRIVATE_KEY:~-3!)
+          ) else (
+            echo Secret is empty!
+            exit /b 1
+          )
 
       - name: Cleanup on failure
         if: failure()
