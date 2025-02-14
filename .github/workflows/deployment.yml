@@ -12,6 +12,7 @@ on:
 
 env:
   COMPOSE_FILE: src/docker-compose.yml
+  API_URL: http://localhost:8080
 
 jobs:
   build:
@@ -41,23 +42,11 @@ jobs:
         run: |
           docker-compose -f ${{ env.COMPOSE_FILE }} logs
 
-      - name: Health Check
-        shell: cmd
-        run: |
-            echo Testing API endpoint...
-    
-            REM Ждем 10 секунд через ping (альтернатива timeout)
-            ping 127.0.0.1 -n 10 > nul
-    
-            REM Выполняем запрос и сохраняем HTTP-статус
-            curl -s -o nul -w "%%{http_code}" http://localhost:8080/api/health > response.txt
-            set /p RESPONSE=<response.txt
-    
-            REM Проверяем статус
-            if "%RESPONSE%"=="200" (
-            echo API test passed. HTTP Status Code: %RESPONSE%
-            ) else (
-            echo API test failed. HTTP Status Code: %RESPONSE%
-            exit /b 1
-            )
+      - name: Wait for services
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: ${{ env.API_URL }}/api/health
+          timeout: 120
+          interval: 5
+          expectedStatus: 200
     
