@@ -16,9 +16,14 @@ COPY ["Web/RifleAssembly.Authentication.Web/RifleAssembly.Authentication.Web.csp
 RUN --mount=type=cache,target=/root/.nuget/packages \
     --mount=type=cache,target=/root/.local/share/NuGet/v3-cache \
     dotnet restore "Web/RifleAssembly.Authentication.Web/RifleAssembly.Authentication.Web.csproj"
+
 COPY . .
 WORKDIR "/src/Web/RifleAssembly.Authentication.Web"
-RUN dotnet build "./RifleAssembly.Authentication.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN --mount=type=secret,id=jwt_private_key \
+    mkdir -p /app/keys && \
+    cp /run/secrets/jwt_private_key /app/keys/private_key.xml && \
+    chmod 400 /app/keys/private_key.xml && \
+    dotnet build -c $BUILD_CONFIGURATION -o /app/build
 
 # Этот этап используется для публикации проекта службы, который будет скопирован на последний этап
 FROM build AS publish
@@ -29,6 +34,12 @@ RUN dotnet publish "./RifleAssembly.Authentication.Web.csproj" -c $BUILD_CONFIGU
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY Web/RifleAssembly.Authentication.Web/Keys/public_key.xml /app/keys/public_key.xml
+COPY --from=build /app/keys/private_key.xml /app/keys/
+COPY Web/RifleAssembly.Authentication.Web/Keys/public_key.xml /app/keys/
+
+RUN chmod 444 /app/keys/public_key.xml && \
+    find . -type d -exec chmod 755 {} + && \
+    find . -type f -exec chmod 644 {} + && \
+    chmod +x RifleAssembly.Authentication.Web.dll
 
 ENTRYPOINT ["dotnet", "RifleAssembly.Authentication.Web.dll"]
