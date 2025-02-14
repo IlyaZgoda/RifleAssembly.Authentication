@@ -42,11 +42,23 @@ jobs:
         run: |
           docker-compose -f ${{ env.COMPOSE_FILE }} logs
 
-      - name: Wait for services
+      - name: Make health check request
+        id: request
         uses: fjogeleit/http-request-action@v1
         with:
           url: ${{ env.API_URL }}/api/health
+          method: 'GET'
           timeout: 120
-          interval: 5
-          expectedStatus: 200
+          retry: 5
+
+      - name: Check response
+        run: |
+           if ${{ steps.request.outputs.status }}=="200" (
+            echo API test passed.
+           ) else (
+            echo API test failed.
+            exit /b 1
+           )
+           HTTP Status Code: ${{ steps.request.outputs.status }}
+          
     
