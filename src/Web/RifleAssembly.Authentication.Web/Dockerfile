@@ -7,13 +7,13 @@ WORKDIR /app
 EXPOSE 8080
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV ASPNETCORE_URLS=http://+:8080
+WORKDIR /src
+COPY ["Web/RifleAssembly.Authentication.Web/RifleAssembly.Authentication.Web.csproj", "Web/RifleAssembly.Authentication.Web/"]
+RUN dotnet restore "./Web/RifleAssembly.Authentication.Web/RifleAssembly.Authentication.Web.csproj"
 
 # Этот этап используется для сборки проекта службы
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY ["Web/RifleAssembly.Authentication.Web/RifleAssembly.Authentication.Web.csproj", "Web/RifleAssembly.Authentication.Web/"]
-RUN dotnet restore "./Web/RifleAssembly.Authentication.Web/RifleAssembly.Authentication.Web.csproj"
 COPY . .
 WORKDIR "/src/Web/RifleAssembly.Authentication.Web"
 RUN dotnet build "./RifleAssembly.Authentication.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
