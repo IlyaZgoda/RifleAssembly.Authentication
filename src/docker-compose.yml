@@ -6,17 +6,13 @@ services:
       dockerfile: Web/RifleAssembly.Authentication.Web/Dockerfile
       args:
         - BUILD_CONFIGURATION=Release
-      secrets:
-        - source: jwt_private_key
-          target: jwt_private_key 
     ports:
       - "8080:8080" 
 
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - JWT_PRIVATE_KEY_PATH=/secrets/private_key.xml
       - ASPNETCORE_URLS=http://+:8080
-
+      - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
 
     restart: always
     networks:
@@ -30,14 +26,7 @@ services:
     security_opt:
       - no-new-privileges:true
     read_only: true
-    secrets:
-      - source: jwt_private_key
-        target: jwt_private_key 
 
 networks:
   app_network:
     driver: bridge
-
-secrets:
-  jwt_private_key:
-    file: ./secrets/private_key.xml
