@@ -30,8 +30,14 @@ jobs:
             [registry."docker.io"]
             mirrors = ["mirror.gcr.io"]
           install: true
-          use-cache: true
           driver-opts: image=moby/buildkit:latest
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: ~/.docker/buildx-cache
+          key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile', '**/docker-compose.yml') }}
+          compression: none 
 
       - name: Build and push with Buildx
         uses: docker/build-push-action@v6          
