@@ -35,7 +35,7 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v3
         with:
-          path: ~/.docker/buildx-cache
+          path: $HOME/.docker/cache
           key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile', '**/docker-compose.yml') }}
           restore-keys: |
             ${{ runner.os }}-buildx-
