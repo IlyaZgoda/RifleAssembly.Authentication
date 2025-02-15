@@ -56,7 +56,7 @@ namespace RifleAssembly.Authentication.Web
 
             app.MapGet("/api/health", () => Results.Ok("Healthy!!!!"));
             //app.UseHttpsRedirection();
-
+            //
             string privateKeyXml = Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY");
             if (!string.IsNullOrEmpty(privateKeyXml))
             {
