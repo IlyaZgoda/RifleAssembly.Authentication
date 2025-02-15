@@ -60,7 +60,7 @@ namespace RifleAssembly.Authentication.Web
             string privateKeyXml = Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY");
             if (!string.IsNullOrEmpty(privateKeyXml))
             {
-                File.WriteAllText("/app/keys/private_key.xml", privateKeyXml);
+                Console.WriteLine(privateKeyXml);
             }
 
             app.UseRouting();
