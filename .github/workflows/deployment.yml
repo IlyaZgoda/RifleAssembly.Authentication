@@ -31,13 +31,6 @@ jobs:
             mirrors = ["mirror.gcr.io"]
           install: true
           driver-opts: image=moby/buildkit:latest
-          
-      - name: Docker layer caching
-        uses: satackey/action-docker-layer-caching@v0.0.8
-        with:
-          key: ${{ runner.os }}-docker-cache-${{ hashFiles('**/Dockerfile') }}
-          restore-keys: |
-            ${{ runner.os }}-docker-cache-
       
       - name: Build and push with Buildx
         uses: docker/build-push-action@v6          
