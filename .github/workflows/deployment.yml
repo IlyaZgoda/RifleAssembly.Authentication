@@ -40,16 +40,7 @@ jobs:
             src/obj/
           key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile', '**/docker-compose.yml') }}
 
-      - name: Build and push with Buildx
-        uses: docker/build-push-action@v6          
-        with:
-          context: ${{ github.workspace }}/src/
-          file: ${{ github.workspace }}/src/Web/RifleAssembly.Authentication.Web/Dockerfile
-          builder: ${{ steps.buildx.outputs.name }}
-          load: true
-          cache-from: type=local,src=$HOME/.docker/cache
-          cache-to: type=local,dest=$HOME/.docker/cache
-          tags: rifleassembly-authentication:latest
+     
 
       - name: Stop old containers
         shell: cmd
