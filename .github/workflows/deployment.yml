@@ -49,8 +49,6 @@ jobs:
           load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          secrets: |
-            id=jwt_private_key,env=JWT_PRIVATE_KEY
           tags: rifleassembly-authentication:latest
 
       - name: Stop old containers
