@@ -50,6 +50,8 @@ jobs:
           cache-from: type=local,src=$HOME/.docker/cache
           cache-to: type=local,dest=$HOME/.docker/cache
           tags: rifleassembly-authentication:latest
+          build-args: |
+            DOCKER_BUILDKIT=1
 
       - name: Stop old containers
         shell: cmd

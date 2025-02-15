@@ -14,6 +14,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Web/RifleAssembly.Authentication.Web/RifleAssembly.Authentication.Web.csproj", "Web/RifleAssembly.Authentication.Web/"]
 RUN dotnet restore "./Web/RifleAssembly.Authentication.Web/RifleAssembly.Authentication.Web.csproj"
+RUN --mount=type=cache,target=/root/.nuget/packages dotnet restore "./Web/RifleAssembly.Authentication.Web/RifleAssembly.Authentication.Web.csproj"
 COPY . .
 WORKDIR "/src/Web/RifleAssembly.Authentication.Web"
 RUN dotnet build "./RifleAssembly.Authentication.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
