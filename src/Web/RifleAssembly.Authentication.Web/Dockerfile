@@ -27,6 +27,6 @@ RUN dotnet publish "./RifleAssembly.Authentication.Web.csproj" -c $BUILD_CONFIGU
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY Web/RifleAssembly.Authentication.Web/Keys/public_key.xml /app/keys/public_key.xml
+COPY Keys/public_key.xml /app/keys/public_key.xml
 
 ENTRYPOINT ["dotnet", "RifleAssembly.Authentication.Web.dll"]
