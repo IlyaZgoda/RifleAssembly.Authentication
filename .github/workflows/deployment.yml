@@ -32,18 +32,6 @@ jobs:
           install: true
           driver-opts: image=moby/buildkit:latest
 
-      - name: Upload Docker cache
-        uses: actions/upload-artifact@v3
-        with:
-          name: docker-cache
-          path: ~/.docker/buildx-cache
-
-      - name: Download Docker cache
-        uses: actions/download-artifact@v3
-        with:
-          name: docker-cache
-          path: ~/.docker/buildx-cache
-
       - name: Build and push with Buildx
         uses: docker/build-push-action@v6          
         with:
