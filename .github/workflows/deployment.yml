@@ -43,7 +43,7 @@ jobs:
       - name: Build and push with Buildx
         uses: docker/build-push-action@v6          
         with:
-          context: ${{ github.workspace }}/src/
+          context: ${{ github.workspace }}/src/Web/RifleAssembly.Authentication.Web
           file: ${{ github.workspace }}/src/Web/RifleAssembly.Authentication.Web/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           load: true
