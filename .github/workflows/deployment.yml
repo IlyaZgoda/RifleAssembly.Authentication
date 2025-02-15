@@ -41,6 +41,7 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile', '**/docker-compose.yml') }}
 
       - name: Pull base images if not cached
+        shell: cmd
         run: |
           docker pull mcr.microsoft.com/dotnet/aspnet:9.0 || true
           docker pull mcr.microsoft.com/dotnet/sdk:9.0 || true
