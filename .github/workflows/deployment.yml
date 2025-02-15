@@ -40,14 +40,6 @@ jobs:
             src/obj/
           key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile', '**/docker-compose.yml') }}
 
-      - name: Cache NuGet packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
-
       - name: Build and push with Buildx
         uses: docker/build-push-action@v6          
         with:
@@ -55,8 +47,8 @@ jobs:
           file: ${{ github.workspace }}/src/Web/RifleAssembly.Authentication.Web/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           load: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=local,src=$HOME/.docker/cache
+          cache-to: type=local,dest=$HOME/.docker/cache
           tags: rifleassembly-authentication:latest
 
       - name: Stop old containers
