@@ -32,13 +32,12 @@ jobs:
           install: true
           driver-opts: image=moby/buildkit:latest
           
-      - name: Cache Docker layers
-        uses: actions/cache@v3
+      - name: Docker layer caching
+        uses: satackey/action-docker-layer-caching@v0.0.8
         with:
-          path: $HOME/.docker/cache
-          key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile', '**/docker-compose.yml') }}
+          key: ${{ runner.os }}-docker-cache-${{ hashFiles('**/Dockerfile') }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
+            ${{ runner.os }}-docker-cache-
       
       - name: Build and push with Buildx
         uses: docker/build-push-action@v6          
