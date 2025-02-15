@@ -32,11 +32,6 @@ jobs:
           install: true
           driver-opts: image=moby/buildkit:latest
 
-      - name: Pull base image
-        shell: cmd
-        run: |
-          docker pull mcr.microsoft.com/dotnet/sdk:9.0@sha256:7f8e8b1514a2eeccb025f1e9dd554e191b21afa7f43f8321b7bd2009cdd59a1d
-
       - name: Cache Docker layers
         uses: actions/cache@v3
         with:
