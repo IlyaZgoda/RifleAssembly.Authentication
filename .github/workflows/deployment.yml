@@ -40,6 +40,11 @@ jobs:
             src/obj/
           key: ${{ runner.os }}-buildx-${{ hashFiles('**/Dockerfile', '**/docker-compose.yml') }}
 
+      - name: Pull base images if not cached
+        run: |
+          docker pull mcr.microsoft.com/dotnet/aspnet:9.0 || true
+          docker pull mcr.microsoft.com/dotnet/sdk:9.0 || true
+
       - name: Build and push with Buildx
         uses: docker/build-push-action@v6          
         with:
