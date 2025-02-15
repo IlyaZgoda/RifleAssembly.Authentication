@@ -48,8 +48,8 @@ jobs:
           file: ${{ github.workspace }}/src/Web/RifleAssembly.Authentication.Web/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           load: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=local,src=$HOME/.docker/cache
+          cache-to: type=local,dest=$HOME/.docker/cache, mode=max
           tags: rifleassembly-authentication:latest
           build-args: |
             DOCKER_BUILDKIT=1
