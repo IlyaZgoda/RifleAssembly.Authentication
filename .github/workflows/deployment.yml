@@ -31,6 +31,7 @@ jobs:
             mirrors = ["mirror.gcr.io"]
           install: true
           driver-opts: image=moby/buildkit:latest
+          
       - name: Cache Docker layers
         uses: actions/cache@v3
         with:
@@ -46,16 +47,17 @@ jobs:
           file: ${{ github.workspace }}/src/Web/RifleAssembly.Authentication.Web/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           load: true
-          cache-from: type=local,src=$HOME/.docker/cache
-          cache-to: type=local,dest=$HOME/.docker/cache, mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new, mode=max
           tags: rifleassembly-authentication:latest
           build-args: |
             DOCKER_BUILDKIT=1
+            
       - name: Move cache
         shell: cmd
         run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          rd /s /q \tmp\.buildx-cache
+          move \tmp\.buildx-cache-new \tmp\.buildx-cache
           
       - name: Stop old containers
         shell: cmd
