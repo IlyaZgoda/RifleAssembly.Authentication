@@ -17,58 +17,43 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: [self-hosted, windows, x64]
     steps:
-      # Клонирование репозитория
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Настройка Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
+          driver: docker-container
+          buildkitd-config-inline: |
+            [registry."docker.io"]
+            mirrors = ["mirror.gcr.io"]
           install: true
-          driver-opts: image=moby/buildkit:latest
-
-      # Кэширование слоёв Docker
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: ~/.docker/buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      # Сборка и публикация с помощью Buildx
+          driver-opts: image=moby/buildkit:latest         
+            
       - name: Build and push with Buildx
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v6          
         with:
           context: ${{ github.workspace }}/src/
           file: ${{ github.workspace }}/src/Web/RifleAssembly.Authentication.Web/Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           load: true
-          cache-from: type=local,src=~/.docker/buildx-cache
-          cache-to: type=local,dest=~/.docker/buildx-cache-new,mode=max
+          cache-from: type=local,src=$HOME/.docker/cache
+          cache-to: type=local,dest=$HOME/.docker/cache mode=max
           tags: rifleassembly-authentication:latest
           build-args: |
             DOCKER_BUILDKIT=1
-
-      # Перемещение нового кэша в основную директорию
-      - name: Move cache
-        run: |
-          rm -rf ~/.docker/buildx-cache
-          mv ~/.docker/buildx-cache-new ~/.docker/buildx-cache
-
-      # Остановка старых контейнеров
+          
       - name: Stop old containers
+        shell: cmd
         run: docker-compose -f ${{ env.COMPOSE_FILE }} down --rmi local -v --remove-orphans || true
 
-      # Запуск новых контейнеров
       - name: Build and start
-        run: docker-compose -f ${{ env.COMPOSE_FILE }} up -d
+        shell: cmd
+        run: |
+          docker-compose -f ${{ env.COMPOSE_FILE }} up -d
 
-      # Проверка здоровья сервиса
       - name: Make health check request
         id: request
         uses: fjogeleit/http-request-action@v1
@@ -78,31 +63,30 @@ jobs:
           timeout: 120
           retry: 5
 
-      # Проверка ответа от API
       - name: Check response
+        shell: cmd
         run: |
-          if [ "${{ steps.request.outputs.status }}" == "200" ]; then
-            echo "API test passed."
-          else
-            echo "API test failed."
-            exit 1
-          fi
-          echo "HTTP Status Code: ${{ steps.request.outputs.status }}"
+          if ${{ steps.request.outputs.status }} == 200 (
+           echo API test passed.
+          ) else (
+           echo API test failed.
+           exit /b 1
+          )
+          echo HTTP Status Code: ${{ steps.request.outputs.status }}
 
-      # Проверка секрета через JavaScript
       - name: Check secret via JS
         uses: actions/github-script@v6
         with:
-          script: |
-            const secret = process.env.JWT_PRIVATE_KEY;
-            if (!secret) {
-              core.setFailed('JWT_PRIVATE_KEY is empty!');
-            }
-            console.log(`Secret length: ${secret?.length || 0}`);
+            script: |
+              const secret = process.env.JWT_PRIVATE_KEY;
+              if (!secret) {
+                  core.setFailed('JWT_PRIVATE_KEY is empty!');
+              }
+              console.log(`Secret length: ${secret?.length || 0}`);
 
-      # Очистка при неудаче
       - name: Cleanup on failure
         if: failure()
+        shell: cmd
         run: |
           docker-compose -f ${{ env.COMPOSE_FILE }} logs
           docker-compose -f ${{ env.COMPOSE_FILE }} down -v
