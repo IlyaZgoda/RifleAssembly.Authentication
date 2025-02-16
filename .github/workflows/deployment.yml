@@ -31,7 +31,14 @@ jobs:
             mirrors = ["mirror.gcr.io"]
           install: true
           driver-opts: image=moby/buildkit:latest
-      
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx
+            
       - name: Build and push with Buildx
         uses: docker/build-push-action@v6          
         with:
@@ -44,7 +51,11 @@ jobs:
           tags: rifleassembly-authentication:latest
           build-args: |
             DOCKER_BUILDKIT=1
-
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          
       - name: Stop old containers
         shell: cmd
         run: docker-compose -f ${{ env.COMPOSE_FILE }} down --rmi local -v --remove-orphans || true
