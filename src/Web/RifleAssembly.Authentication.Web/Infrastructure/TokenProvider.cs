@@ -15,15 +15,9 @@ namespace RifleAssembly.Authentication.Web.Infrastructure
             //var privateKeyString = File.ReadAllText(privateKeyXml);
 
             var privateKeyXml = Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY")!;
-            var privateKeyString = File.ReadAllText(privateKeyXml);
-
-            if (privateKeyString != null)
-            {
-                Console.WriteLine($"privateKeyString: {privateKeyString}");
-            }
 
             var rsa = RSA.Create();
-            rsa.FromXmlString(privateKeyString);
+            rsa.FromXmlString(privateKeyXml);
 
             var privateKey = new RsaSecurityKey(rsa);
 
