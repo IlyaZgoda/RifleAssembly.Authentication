@@ -11,10 +11,10 @@ namespace RifleAssembly.Authentication.Web
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            builder.WebHost.ConfigureKestrel(serverOptions =>
-            {
-                serverOptions.ListenAnyIP(8080);
-            });
+            //builder.WebHost.ConfigureKestrel(serverOptions =>
+            //{
+            //    serverOptions.ListenAnyIP(8080);
+            //});
             // Add services to the container.
             builder.Services.AddSingleton<TokenProvider>();
             builder.Services.AddLdapServices();
@@ -55,13 +55,13 @@ namespace RifleAssembly.Authentication.Web
             }
 
             app.MapGet("/api/health", () => Results.Ok("Healthy!!!!"));
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
             
-            string privateKeyXml = Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY");
-            if (!string.IsNullOrEmpty(privateKeyXml))
-            {
-                Console.WriteLine(privateKeyXml);
-            }
+            //string privateKeyXml = Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY");
+            //if (!string.IsNullOrEmpty(privateKeyXml))
+            //{
+            //    Console.WriteLine(privateKeyXml);
+            //}
 
             app.UseRouting();
 
