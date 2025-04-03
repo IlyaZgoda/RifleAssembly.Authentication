@@ -55,7 +55,9 @@ namespace RifleAssembly.Authentication.Web
             }
 
             app.MapGet("/api/health", () => Results.Ok("Healthy!!!!"));
-            app.UseHttpsRedirection();       
+            app.UseHttpsRedirection();
+
+            Console.WriteLine($"----- TEST BUILD: {DateTime.UtcNow:O} -----");
 
             app.UseRouting();
 
