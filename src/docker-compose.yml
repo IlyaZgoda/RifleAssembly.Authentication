@@ -16,7 +16,7 @@ services:
 
     restart: always
     networks:
-      - app_network
+      - rifleassembly-network
  
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
@@ -28,5 +28,5 @@ services:
     read_only: true
 
 networks:
-  app_network:
-    driver: bridge
+  rifleassembly-network:
+    external: true
