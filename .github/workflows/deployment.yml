@@ -5,10 +5,6 @@ name: CI/CD Pipeline
 
 on:
   workflow_dispatch:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
 
 env:
   COMPOSE_FILE: src/docker-compose.yml
