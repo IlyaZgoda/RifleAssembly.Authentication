@@ -1,5 +1,5 @@
 services:
-  rifleassembly.authentication.web:
+  app:
     image: rifleassembly-authentication:latest
     build:
       context: .
