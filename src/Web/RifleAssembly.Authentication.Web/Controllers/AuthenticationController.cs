@@ -15,13 +15,20 @@ namespace RifleAssembly.Authentication.Web.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly ILdapService _ldap;
+        private readonly ILogger<AuthenticationController> _logger;
 
-        public AuthenticationController([FromKeyedServices(LdapServices.CrossPlatform)] ILdapService ldap) =>
+        public AuthenticationController([FromKeyedServices(LdapServices.CrossPlatform)] ILdapService ldap, ILogger<AuthenticationController> logger)
+        {
             _ldap = ldap;
+            _logger = logger;
+        }
+            
 
         [HttpPost("login")]
         public IActionResult Login([FromBody, Required] LoginRequest loginRequest)
         {
+            _logger.LogInformation("Authentication requested for user: {Login}", loginRequest.Login);
+
             var token = _ldap.Authenticate(loginRequest.Login, loginRequest.Password);
 
             return token is not null ? Ok(token) : BadRequest("Incorrect login or password");

@@ -1,4 +1,5 @@
-﻿using Novell.Directory.Ldap;
+﻿using Microsoft.AspNetCore.Identity.Data;
+using Novell.Directory.Ldap;
 using RifleAssembly.Authentication.Web.Students;
 
 namespace RifleAssembly.Authentication.Web.Infrastructure.Services
@@ -6,11 +7,15 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
     public class LdapCrossPlatform : ILdapService
     {
         private readonly TokenProvider _tokenProvider;
+        private readonly ILogger<LdapCrossPlatform> _logger;
         private readonly string _ldapHost = "stud.asu.ru";
         private readonly int _ldapPort = 389; // Стандартный порт LDAP
 
-        public LdapCrossPlatform(TokenProvider tokenProvider) =>
+        public LdapCrossPlatform(TokenProvider tokenProvider, ILogger<LdapCrossPlatform> logger)
+        {
             _tokenProvider = tokenProvider;
+            _logger = logger;
+        }
 
         public string? Authenticate(string login, string password)
         {
@@ -24,7 +29,7 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
 
                     if (!connection.Bound)
                     {
-                        Console.WriteLine("Authentication failed: Unable to bind to LDAP server.");
+                        _logger.LogInformation("Authentication failed: Unable to bind to LDAP server for user with login: {login}", login);
                         return null;
                     }
 
@@ -42,7 +47,7 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
                     // Обработка результатов поиска
                     if (!searchResults.HasMore())
                     {
-                        Console.WriteLine("User not found in LDAP directory.");
+                        _logger.LogInformation("User with login: {login} not found in LDAP directory", login);
                         return null;
                     }
 
@@ -52,7 +57,7 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
 
                     if (string.IsNullOrEmpty(description) || string.IsNullOrEmpty(fullName))
                     {
-                        Console.WriteLine("Missing required attributes in LDAP entry.");
+                        _logger.LogInformation("Missing required attributes in LDAP entry for user with login: {login}", login);
                         return null;
                     }
 
@@ -72,17 +77,19 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
                     // Генерация токена
                     var token = _tokenProvider.Create(student);
 
+                    _logger.LogInformation("User with login: {login} successfully authenticated", login);
+
                     return token;
                 }
             }
             catch (LdapException ex)
             {
-                Console.WriteLine($"LDAP error: {ex.Message} \n {ex.StackTrace}");
+                _logger.LogInformation("LDAP error: {ex.Message} \n {ex.StackTrace} for user with login: {login}", ex.Message, ex.StackTrace, login);
                 return null;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Unexpected error: {ex.Message} \n {ex.StackTrace}");
+                _logger.LogInformation("Unexpected error: {ex.Message} \n {ex.StackTrace} for user with login: {login}", ex.Message, ex.StackTrace, login);
                 return null;
             }
         }
