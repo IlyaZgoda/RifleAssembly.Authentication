@@ -11,8 +11,8 @@ namespace RifleAssembly.Authentication.Web.Infrastructure
         public string Create(Student student)
         {
 
-            //string privateKeyXml = configuration["Jwt:Secret"]!;
-            //var privateKeyString = File.ReadAllText(privateKeyXml);
+            //string privateKeyString = configuration["Jwt:Secret"]!;
+            //var privateKeyXml = File.ReadAllText(privateKeyString);
 
             var privateKeyXml = Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY")!;
 

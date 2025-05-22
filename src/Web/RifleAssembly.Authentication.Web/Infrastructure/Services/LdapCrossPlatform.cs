@@ -20,10 +20,7 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
                 using (var connection = new LdapConnection())
                 {
                     connection.Connect(_ldapHost, _ldapPort);
-
-                    // Аутентификация пользователя
-                    string userDn = $"cn={login},dc=stud,dc=asu,dc=ru"; // DN пользователя
-                    connection.Bind(userDn, password);
+                    connection.Bind($"{login}@stud.asu.ru", password);
 
                     if (!connection.Bound)
                     {
@@ -32,7 +29,7 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
                     }
 
                     // Поиск пользователя в каталоге
-                    string filter = $"(&(objectClass=user)(sAMAccountName={login}))";
+                    string filter = $"(mail={login}@stud.asu.ru)";
                     string[] attributes = { "description", "cn" }; // Запрашиваемые атрибуты
                     var searchResults = connection.Search(
                         "dc=stud,dc=asu,dc=ru", // Базовый DN для поиска
@@ -74,6 +71,7 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
 
                     // Генерация токена
                     var token = _tokenProvider.Create(student);
+
                     return token;
                 }
             }
@@ -90,86 +88,3 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
         }
     }
 }
-
-
-//using Novell.Directory.Ldap;
-//using RifleAssembly.Authentication.Web.Students;
-//using System;
-
-//namespace RifleAssembly.Authentication.Web.Infrastructure.Services
-//{
-//    public class LdapCrossPlatform : ILdapService
-//    {
-//        private readonly TokenProvider _tokenProvider;
-
-//        // Адрес LDAP-сервера (без префикса LDAP://)
-//        private readonly string _ldapHost = "stud.asu.ru";
-//        private readonly int _ldapPort = 389; // или 636 для LDAPS (тогда нужен SSL)
-
-//        public LdapCrossPlatform(TokenProvider tokenProvider)
-//        {
-//            _tokenProvider = tokenProvider;
-//        }
-
-//        public string? Authenticate(string login, string password)
-//        {
-//            try
-//            {
-//                using var connection = new LdapConnection();
-//                connection.Connect(_ldapHost, _ldapPort);
-//                connection.Bind(login, password);
-
-//                // Фильтр поиска пользователя
-//                var searchFilter = $"(&(objectClass=user)(sAMAccountName={login}))";
-
-//                // Базовая точка поиска (можно уточнить, если известна)
-//                string searchBase = "dc=stud,dc=asu,dc=ru";
-
-//                var result = connection.Search(
-//                    searchBase,
-//                    LdapConnection.SCOPE_SUB,
-//                    searchFilter,
-//                    new[] { "description", "cn" },
-//                    false
-//                );
-
-//                if (result.HasMore())
-//                {
-//                    var entry = result.Next();
-
-//                    var descriptionAttr = entry.getAttribute("description")?.StringValue;
-//                    var cnAttr = entry.getAttribute("cn")?.StringValue;
-
-//                    if (descriptionAttr == null || cnAttr == null)
-//                        throw new Exception("description or cn not found");
-
-//                    var descriptionSplit = descriptionAttr.Split(',', 2, StringSplitOptions.None);
-//                    var groupTitle = descriptionSplit[0].Remove(0, 7);
-//                    var instituteTitle = descriptionSplit[1].Trim();
-
-//                    var fullNameSplit = cnAttr.Split(' ');
-//                    var lastName = fullNameSplit[0];
-//                    var firstName = fullNameSplit[1];
-//                    var middleName = fullNameSplit.Length > 2 ? fullNameSplit[2] : "";
-
-//                    var student = new Student(instituteTitle, groupTitle, firstName, lastName, middleName, login);
-//                    var token = _tokenProvider.Create(student);
-
-//                    return token;
-//                }
-
-//                return null;
-//            }
-//            catch (LdapException ex)
-//            {
-//                Console.WriteLine($"LDAP error: {ex.LdapErrorMessage}");
-//                return null;
-//            }
-//            catch (Exception ex)
-//            {
-//                Console.WriteLine($"General error: {ex.Message}\n{ex.StackTrace}");
-//                return null;
-//            }
-//        }
-//    }
-//}

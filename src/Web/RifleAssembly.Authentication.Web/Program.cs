@@ -11,10 +11,7 @@ namespace RifleAssembly.Authentication.Web
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            //builder.WebHost.ConfigureKestrel(serverOptions =>
-            //{
-            //    serverOptions.ListenAnyIP(8080);
-            //});
+
             // Add services to the container.
             builder.Services.AddSingleton<TokenProvider>();
             builder.Services.AddLdapServices();

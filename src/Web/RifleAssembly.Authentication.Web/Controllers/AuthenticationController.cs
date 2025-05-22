@@ -16,7 +16,7 @@ namespace RifleAssembly.Authentication.Web.Controllers
     {
         private readonly ILdapService _ldap;
 
-        public AuthenticationController([FromKeyedServices(LdapServices.Mock)] ILdapService ldap) =>
+        public AuthenticationController([FromKeyedServices(LdapServices.CrossPlatform)] ILdapService ldap) =>
             _ldap = ldap;
 
         [HttpPost("login")]
