@@ -5,7 +5,7 @@ on:
 
 env:
   COMPOSE_FILE: src/docker-compose.yml
-  API_URL: http://localhost:8080
+  API_URL: http://localhost:8082
   JWT_PRIVATE_KEY: ${{ secrets.JWT_PRIVATE_KEY }}
 
 jobs:
