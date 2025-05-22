@@ -1,0 +1,67 @@
+name: CI/CD Pipeline Linux
+
+on:
+  workflow_dispatch:
+
+env:
+  COMPOSE_FILE: src/docker-compose.yml
+  API_URL: http://localhost:8080
+  JWT_PRIVATE_KEY: ${{ secrets.JWT_PRIVATE_KEY }}
+
+jobs:
+  build:
+    runs-on: [self-hosted, linux, x64]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+          driver: docker-container
+          buildkitd-config-inline: |
+            [registry."docker.io"]
+            mirrors = ["mirror.gcr.io"]
+
+      - name: Build and load image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ github.workspace }}/src/
+          file: ${{ github.workspace }}/src/Web/RifleAssembly.Authentication.Web/Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          load: true
+          tags: rifleassembly-authentication:latest
+          build-args: |
+            DOCKER_BUILDKIT=1
+          cache-from: type=local,src=$HOME/.docker/cache
+          cache-to: type=local,dest=$HOME/.docker/cache,mode=max
+
+      - name: Stop old containers
+        run: docker compose -f ${{ env.COMPOSE_FILE }} -p rifleassembly-authentication down --rmi local --remove-orphans || true
+
+      - name: Build and start containers
+        run: docker compose -f ${{ env.COMPOSE_FILE }} -p rifleassembly-authentication up -d
+
+      - name: Make health check request
+        id: request
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: ${{ env.API_URL }}/api/health
+          method: 'GET'
+          timeout: 120
+          retry: 5
+          
+      - name: Check JWT_PRIVATE_KEY is present
+        run: |
+          if [ -z "${JWT_PRIVATE_KEY}" ]; then
+            echo "JWT_PRIVATE_KEY is empty!"
+            exit 1
+          fi
+          echo "JWT_PRIVATE_KEY length: ${#JWT_PRIVATE_KEY}"
+
+      - name: Show logs on failure
+        if: failure()
+        run: |
+          docker compose -f ${{ env.COMPOSE_FILE }} logs
+          docker compose -f ${{ env.COMPOSE_FILE }} down 
