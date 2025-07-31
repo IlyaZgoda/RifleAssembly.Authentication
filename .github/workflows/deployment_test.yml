@@ -55,7 +55,25 @@ jobs:
         shell: cmd
         run: docker-compose logs auth-service
           
+      - name: Make health check request
+        id: request
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: ${{ env.API_URL }}/api/health
+          method: 'GET'
+          timeout: 120
+          retry: 5
 
+      - name: Check response
+        shell: cmd
+        run: |
+          if ${{ steps.request.outputs.status }} == 200 (
+           echo API test passed.
+          ) else (
+           echo API test failed.
+           exit /b 1
+          )
+          echo HTTP Status Code: ${{ steps.request.outputs.status }}
 
       - name: Check secret via JS
         uses: actions/github-script@v6
