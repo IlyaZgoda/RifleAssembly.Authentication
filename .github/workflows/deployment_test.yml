@@ -55,7 +55,7 @@ jobs:
         shell: cmd
         run: docker-compose logs auth-service
           
-
+    
 
       - name: Check secret via JS
         uses: actions/github-script@v6
