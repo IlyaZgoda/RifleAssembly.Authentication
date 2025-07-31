@@ -10,6 +10,7 @@ env:
   COMPOSE_FILE: src/docker-compose.yml
   API_URL: http://localhost:8080
   JWT_PRIVATE_KEY: ${{ secrets.JWT_PRIVATE_KEY }}
+  APP_ENVIRONMENT: Staging
 
 jobs:
   build:
