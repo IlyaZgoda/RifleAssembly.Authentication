@@ -52,6 +52,7 @@ jobs:
           docker-compose -f ${{ env.COMPOSE_FILE }} up -d
           
       - name: Check container logs
+        shell: cmd
         run: docker-compose logs auth-service
           
       - name: Make health check request
