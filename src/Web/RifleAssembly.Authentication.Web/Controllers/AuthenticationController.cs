@@ -17,7 +17,7 @@ namespace RifleAssembly.Authentication.Web.Controllers
         private readonly ILdapService _ldap;
         private readonly ILogger<AuthenticationController> _logger;
 
-        public AuthenticationController([FromKeyedServices(LdapServices.CrossPlatform)] ILdapService ldap, ILogger<AuthenticationController> logger)
+        public AuthenticationController([FromKeyedServices(LdapServices.Mock)] ILdapService ldap, ILogger<AuthenticationController> logger)
         {
             _ldap = ldap;
             _logger = logger;

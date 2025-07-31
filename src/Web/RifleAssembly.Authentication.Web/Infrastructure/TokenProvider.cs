@@ -6,15 +6,13 @@ using System.Security.Cryptography;
 
 namespace RifleAssembly.Authentication.Web.Infrastructure
 {
-    public class TokenProvider(IConfiguration configuration)
+    public class TokenProvider(IConfiguration configuration, IWebHostEnvironment environment)
     {
         public string Create(Student student)
         {
-
-            //string privateKeyString = configuration["Jwt:Secret"]!;
-            //var privateKeyXml = File.ReadAllText(privateKeyString);
-
-            var privateKeyXml = Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY")!;
+            string privateKeyXml = environment.IsDevelopment() 
+                ? File.ReadAllText(configuration["Jwt:Secret"]!) 
+                : Environment.GetEnvironmentVariable("JWT_PRIVATE_KEY")!;
 
             var rsa = RSA.Create();
             rsa.FromXmlString(privateKeyXml);
