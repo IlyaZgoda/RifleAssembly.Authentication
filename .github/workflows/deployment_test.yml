@@ -50,7 +50,10 @@ jobs:
         shell: cmd
         run: |
           docker-compose -f ${{ env.COMPOSE_FILE }} up -d
-
+          
+      - name: Check container logs
+        run: docker-compose logs auth-service
+          
       - name: Make health check request
         id: request
         uses: fjogeleit/http-request-action@v1
