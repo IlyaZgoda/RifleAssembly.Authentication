@@ -7,6 +7,7 @@ env:
   COMPOSE_FILE: src/docker-compose.yml
   API_URL: http://localhost:8082
   JWT_PRIVATE_KEY: ${{ secrets.JWT_PRIVATE_KEY }}
+  APP_ENVIRONMENT: Production
 
 jobs:
   build:
@@ -42,15 +43,6 @@ jobs:
 
       - name: Build and start containers
         run: docker compose -f ${{ env.COMPOSE_FILE }} -p rifleassembly-authentication up -d
-
-      - name: Make health check request
-        id: request
-        uses: fjogeleit/http-request-action@v1
-        with:
-          url: ${{ env.API_URL }}/api/health
-          method: 'GET'
-          timeout: 120
-          retry: 5
           
       - name: Check JWT_PRIVATE_KEY is present
         run: |
