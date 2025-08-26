@@ -1,4 +1,5 @@
 ﻿using RifleAssembly.Authentication.Web.Students;
+using RifleAssembly.WebService.SharedKernel.Result;
 
 namespace RifleAssembly.Authentication.Web.Infrastructure.Services
 {
@@ -9,12 +10,11 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
         public LdapMock(TokenProvider tokenProvider) =>
             _tokenProvider = tokenProvider;
 
-        public string? Authenticate(string login, string password)
+        public async Task<Result<string>> AuthenticateAsync(string login, string password)
         {
             var student = new Student("Имит", "4.205-1", "Илья", "Згода", "Константинович", "Zgoda.51052");
             var token = _tokenProvider.Create(student);
-
-            return token;
+            return await Task.FromResult(Result.Success(token));
         }
     }
 }

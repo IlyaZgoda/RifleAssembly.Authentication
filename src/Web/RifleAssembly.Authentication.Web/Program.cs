@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using RifleAssembly.Authentication.Web.Extensions;
 using RifleAssembly.Authentication.Web.Infrastructure;
+using RifleAssembly.Authentication.Web.Middleware;
 using System.Security.Cryptography;
 
 namespace RifleAssembly.Authentication.Web
@@ -41,17 +42,20 @@ namespace RifleAssembly.Authentication.Web
             builder.Services.AddSwaggerGenWithAuth();
 
             var app = builder.Build();
-            
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                //app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(swaggerUiOptions =>
                     swaggerUiOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "RiffleAssembly.Authorization API"));
             }
 
             app.MapGet("/api/health", () => Results.Ok("Healthy!!!!"));
+
+            
+
             app.UseHttpsRedirection();
 
 

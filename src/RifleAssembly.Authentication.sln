@@ -6,12 +6,19 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{570F63D9-1215-4B4D-B891-146267B1D95C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RifleAssembly.Authentication.Web", "Web\RifleAssembly.Authentication.Web\RifleAssembly.Authentication.Web.csproj", "{A2A29A9E-013C-4476-87B7-0F5567F39672}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F7F3844D-D2C6-485C-8B5C-AFA33B6A1182} = {F7F3844D-D2C6-485C-8B5C-AFA33B6A1182}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "KeyGeneration", "KeyGeneration", "{F27E7F73-7388-44CC-B8B6-072A15F34146}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RifleAssembly.Authentication.KeyGeneration", "KeyGeneration\RifleAssembly.Authentication.KeyGeneration\RifleAssembly.Authentication.KeyGeneration.csproj", "{48734804-4229-485F-8644-C7FC2120E8CA}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{215E2310-CA55-4F2A-9D80-936732D593E6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SharedKernel", "SharedKernel", "{5210BB21-CF7F-4B5F-B54A-CB4D600CB57B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RifleAssembly.Authentication.SharedKernel", "SharedKernel\RifleAssembly.Authentication.SharedKernel\RifleAssembly.Authentication.SharedKernel.csproj", "{F7F3844D-D2C6-485C-8B5C-AFA33B6A1182}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +38,10 @@ Global
 		{215E2310-CA55-4F2A-9D80-936732D593E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{215E2310-CA55-4F2A-9D80-936732D593E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{215E2310-CA55-4F2A-9D80-936732D593E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7F3844D-D2C6-485C-8B5C-AFA33B6A1182}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7F3844D-D2C6-485C-8B5C-AFA33B6A1182}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7F3844D-D2C6-485C-8B5C-AFA33B6A1182}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7F3844D-D2C6-485C-8B5C-AFA33B6A1182}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -38,5 +49,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{A2A29A9E-013C-4476-87B7-0F5567F39672} = {570F63D9-1215-4B4D-B891-146267B1D95C}
 		{48734804-4229-485F-8644-C7FC2120E8CA} = {F27E7F73-7388-44CC-B8B6-072A15F34146}
+		{F7F3844D-D2C6-485C-8B5C-AFA33B6A1182} = {5210BB21-CF7F-4B5F-B54A-CB4D600CB57B}
 	EndGlobalSection
 EndGlobal

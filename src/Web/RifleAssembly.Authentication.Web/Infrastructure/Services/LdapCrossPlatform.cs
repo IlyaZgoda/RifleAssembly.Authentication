@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity.Data;
-using Novell.Directory.Ldap;
+﻿using Novell.Directory.Ldap;
+using RifleAssembly.Authentication.Web.Errors;
+using RifleAssembly.Authentication.Web.Exceptions;
 using RifleAssembly.Authentication.Web.Students;
+using RifleAssembly.WebService.SharedKernel.Result;
 
 namespace RifleAssembly.Authentication.Web.Infrastructure.Services
 {
@@ -17,20 +19,21 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
             _logger = logger;
         }
 
-        public string? Authenticate(string login, string password)
+        public async Task<Result<string>> AuthenticateAsync(string login, string password)
         {
             try
             {
-                // Подключение к LDAP-серверу
-                using (var connection = new LdapConnection())
+                var result = await Task.Run(() =>
                 {
+                    // Подключение к LDAP-серверу
+                    using var connection = new LdapConnection();
                     connection.Connect(_ldapHost, _ldapPort);
                     connection.Bind($"{login}@stud.asu.ru", password);
 
                     if (!connection.Bound)
                     {
                         _logger.LogInformation("Authentication failed: Unable to bind to LDAP server for user with login: {login}", login);
-                        return null;
+                        return Result.Failure<string>(LdapErrors.InvalidCredentials);
                     }
 
                     // Поиск пользователя в каталоге
@@ -48,7 +51,7 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
                     if (!searchResults.HasMore())
                     {
                         _logger.LogInformation("User with login: {login} not found in LDAP directory", login);
-                        return null;
+                        return Result.Failure<string>(LdapErrors.NotFound);
                     }
 
                     var searchResult = searchResults.Next();
@@ -58,7 +61,7 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
                     if (string.IsNullOrEmpty(description) || string.IsNullOrEmpty(fullName))
                     {
                         _logger.LogInformation("Missing required attributes in LDAP entry for user with login: {login}", login);
-                        return null;
+                        return Result.Failure<string>(LdapErrors.NotFound);
                     }
 
                     // Парсинг данных
@@ -80,17 +83,12 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
                     _logger.LogInformation("User with login: {login} successfully authenticated", login);
 
                     return token;
-                }
+                });
+                return result;
             }
             catch (LdapException ex)
             {
-                _logger.LogInformation("LDAP error: {ex.Message} \n {ex.StackTrace} for user with login: {login}", ex.Message, ex.StackTrace, login);
-                return null;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogInformation("Unexpected error: {ex.Message} \n {ex.StackTrace} for user with login: {login}", ex.Message, ex.StackTrace, login);
-                return null;
+                throw new LdapUnavailableException(LdapErrors.ServerUnavailable, ex);
             }
         }
     }

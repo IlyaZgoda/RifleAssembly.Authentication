@@ -1,7 +1,9 @@
-﻿namespace RifleAssembly.Authentication.Web.Infrastructure.Services
+﻿using RifleAssembly.WebService.SharedKernel.Result;
+
+namespace RifleAssembly.Authentication.Web.Infrastructure.Services
 {
     public interface ILdapService
     {
-        string? Authenticate(string login, string password);
+        Task<Result<string>> AuthenticateAsync(string login, string password);
     }
 }

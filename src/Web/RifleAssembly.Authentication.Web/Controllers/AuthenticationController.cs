@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RifleAssembly.Authentication.Web.Extensions;
 using RifleAssembly.Authentication.Web.Infrastructure.Services;
 using RifleAssembly.Authentication.Web.Students;
+using RifleAssembly.WebService.SharedKernel.Result.Methods.Extensions;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using LoginRequest = RifleAssembly.Authentication.Web.Students.LoginRequest;
@@ -22,17 +24,13 @@ namespace RifleAssembly.Authentication.Web.Controllers
             _ldap = ldap;
             _logger = logger;
         }
-            
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody, Required] LoginRequest loginRequest)
-        {
-            _logger.LogInformation("Authentication requested for user: {Login}", loginRequest.Login);
-
-            var token = _ldap.Authenticate(loginRequest.Login, loginRequest.Password);
-
-            return token is not null ? Ok(token) : BadRequest("Incorrect login or password");
-        }
+        public async Task<IActionResult> Login([FromBody, Required] LoginRequest loginRequest) =>
+            await _ldap.AuthenticateAsync(loginRequest.Login, loginRequest.Password)
+                .Tap(token => _logger.LogInformation("Authentication successful for user: {Login}", loginRequest.Login),
+                    error => _logger.LogError("Authentication for user: {Login} failed with error: {Error}", loginRequest, error))
+                .ToActionResult();
     }
 
     [Route("api")]
