@@ -42,11 +42,12 @@ namespace RifleAssembly.Authentication.Web
             builder.Services.AddSwaggerGenWithAuth();
 
             var app = builder.Build();
-            app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+            app.UseCustomExceptionHandlingMiddleware();
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                //app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(swaggerUiOptions =>
                     swaggerUiOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "RiffleAssembly.Authorization API"));

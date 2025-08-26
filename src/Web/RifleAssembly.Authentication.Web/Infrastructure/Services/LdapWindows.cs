@@ -24,39 +24,35 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
         {
             try
             {
-                var result = await Task.Run(() =>
-                {
-                    using DirectoryEntry directoryEntry = new(_ldapPath, login, password);
+                using DirectoryEntry directoryEntry = new(_ldapPath, login, password);
 
-                    object native = directoryEntry.NativeObject;
+                object native = directoryEntry.NativeObject;
 
-                    DirectorySearcher directorySearcher = new(directoryEntry);
+                DirectorySearcher directorySearcher = new(directoryEntry);
 
-                    string filter = $"(&(objectClass=user)(sAMAccountName={login}))";
+                string filter = $"(&(objectClass=user)(sAMAccountName={login}))";
 
-                    directorySearcher.Filter = filter;
+                directorySearcher.Filter = filter;
 
-                    SearchResult searchResult = directorySearcher.FindOne();
+                SearchResult searchResult = directorySearcher.FindOne();
 
-                    var desription = searchResult.Properties["description"];
-                    var descriptionSplit = desription[0].ToString().Split(',', 2, StringSplitOptions.None);
+                var desription = searchResult.Properties["description"];
+                var descriptionSplit = desription[0].ToString().Split(',', 2, StringSplitOptions.None);
 
-                    var groupTitle = descriptionSplit[0].Remove(0, 7);
-                    var instituteTitle = descriptionSplit[1].Trim();
+                var groupTitle = descriptionSplit[0].Remove(0, 7);
+                var instituteTitle = descriptionSplit[1].Trim();
 
-                    var fullName = searchResult.Properties["cn"];
-                    var fullNameSplit = fullName[0].ToString().Split(' ');
+                var fullName = searchResult.Properties["cn"];
+                var fullNameSplit = fullName[0].ToString().Split(' ');
 
-                    var lastName = fullNameSplit[0];
-                    var firstName = fullNameSplit[1];
-                    var middleName = fullNameSplit[2];
+                var lastName = fullNameSplit[0];
+                var firstName = fullNameSplit[1];
+                var middleName = fullNameSplit[2];
 
-                    var student = new Student(instituteTitle, groupTitle, firstName, lastName, middleName, login);
-                    var token = _tokenProvider.Create(student);
+                var student = new Student(instituteTitle, groupTitle, firstName, lastName, middleName, login);
+                var token = _tokenProvider.Create(student);
 
-                    return token;
-                });
-                return result;
+                return token;
             }
             catch (Exception ex)
             {

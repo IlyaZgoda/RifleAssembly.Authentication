@@ -54,9 +54,15 @@ namespace RifleAssembly.Authentication.Web.Middleware
 
         private static (HttpStatusCode httpStatusCode, IReadOnlyCollection<Error>) GetHttpStatusCodeAndErrors(Exception exception) =>
             exception switch
-            {
+        {
                 LdapUnavailableException ldapUnavailableException => (HttpStatusCode.ServiceUnavailable, new[] { LdapErrors.ServerUnavailable }),
                 _ => (HttpStatusCode.InternalServerError, new[] { LdapErrors.InternalServerError })
-            };
+        };
+    }
+
+    public static class ExceptionHandlingMiddlware
+    {
+        public static IApplicationBuilder UseCustomExceptionHandlingMiddleware(this IApplicationBuilder app) =>
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
     }
 }
