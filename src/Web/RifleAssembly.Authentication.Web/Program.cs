@@ -1,7 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using RifleAssembly.Authentication.Web.Errors;
 using RifleAssembly.Authentication.Web.Extensions;
 using RifleAssembly.Authentication.Web.Infrastructure;
+using RifleAssembly.Authentication.Web.Infrastructure.Factories;
+using RifleAssembly.Authentication.Web.Mappers;
 using RifleAssembly.Authentication.Web.Middleware;
 using System.Security.Cryptography;
 
@@ -15,6 +19,8 @@ namespace RifleAssembly.Authentication.Web
 
             // Add services to the container.
             builder.Services.AddSingleton<TokenProvider>();
+            builder.Services.AddSingleton<ErrorToHttpMapper>();
+            builder.Services.AddSingleton<ProblemDetailsFactory>();
             builder.Services.AddLdapServices();
             builder.Services.AddRazorPages();
             builder.Services.AddControllers();
@@ -41,10 +47,14 @@ namespace RifleAssembly.Authentication.Web
 
             builder.Services.AddSwaggerGenWithAuth();
 
+            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+            builder.Services.AddProblemDetails();
+
             var app = builder.Build();
 
-            app.UseCustomExceptionHandlingMiddleware();
+            //app.UseCustomExceptionHandlingMiddleware();
 
+            app.UseExceptionHandler();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -53,9 +63,7 @@ namespace RifleAssembly.Authentication.Web
                     swaggerUiOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "RiffleAssembly.Authorization API"));
             }
 
-            app.MapGet("/api/health", () => Results.Ok("Healthy!!!!"));
-
-            
+            app.MapGet("/api/health", () => Results.Ok("Healthy!!!!"));         
 
             app.UseHttpsRedirection();
 

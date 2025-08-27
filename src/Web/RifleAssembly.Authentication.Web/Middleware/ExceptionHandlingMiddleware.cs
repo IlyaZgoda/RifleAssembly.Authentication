@@ -1,68 +1,34 @@
-﻿using RifleAssembly.Authentication.Web.Contracts;
+﻿using Microsoft.AspNetCore.Diagnostics;
 using RifleAssembly.Authentication.Web.Errors;
 using RifleAssembly.Authentication.Web.Exceptions;
+using RifleAssembly.Authentication.Web.Infrastructure.Factories;
+using RifleAssembly.Authentication.Web.Mappers;
 using RifleAssembly.WebService.SharedKernel.Result.Errors;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Text.Json;
 
 namespace RifleAssembly.Authentication.Web.Middleware
 {
-    public class ExceptionHandlingMiddleware
+    public class GlobalExceptionHandler(IProblemDetailsService problemDetailsService, ILogger<GlobalExceptionHandler> logger, ErrorToHttpMapper mapper, ProblemDetailsFactory problemDetailsFactory) 
+        : IExceptionHandler
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger _logger;
-
-        public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+        public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
-            _next = next;
-            _logger = logger;
-        }
+            logger.LogError(exception, "Unhandled exception occurred: {Message}", exception.Message);
 
-        public async Task Invoke(HttpContext httpContext)
-        {
-            try
+            Error error = exception switch
             {
-                await _next(httpContext);
-            }
-
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An exception occurred: {Message}", ex.Message);
-
-                await HandleExceptionAsync(httpContext, ex);
-            }
-        }
-
-        private static async Task HandleExceptionAsync(HttpContext httpContext, Exception exception)
-        {
-            (HttpStatusCode httpStatusCode, IReadOnlyCollection<Error> errors) = GetHttpStatusCodeAndErrors(exception);
-
-            httpContext.Response.ContentType = "application/json";
-
-            httpContext.Response.StatusCode = (int)httpStatusCode;
-
-            var serializerOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                LdapUnavailableException => LdapErrors.ServerUnavailable,
+                _ => LdapErrors.InternalServerError,
             };
 
-            string response = JsonSerializer.Serialize(new ApiErrorResponse(errors), serializerOptions);
+            var code = mapper.Map(error);
 
-            await httpContext.Response.WriteAsync(response);
+            httpContext.Response.StatusCode = code;
+
+            return await problemDetailsService.TryWriteAsync(new ProblemDetailsContext
+            {
+                HttpContext = httpContext,
+                ProblemDetails = problemDetailsFactory.CreateProblemDetails(error, code, httpContext)
+            });
         }
-
-        private static (HttpStatusCode httpStatusCode, IReadOnlyCollection<Error>) GetHttpStatusCodeAndErrors(Exception exception) =>
-            exception switch
-        {
-                LdapUnavailableException ldapUnavailableException => (HttpStatusCode.ServiceUnavailable, new[] { LdapErrors.ServerUnavailable }),
-                _ => (HttpStatusCode.InternalServerError, new[] { LdapErrors.InternalServerError })
-        };
-    }
-
-    public static class ExceptionHandlingMiddlware
-    {
-        public static IApplicationBuilder UseCustomExceptionHandlingMiddleware(this IApplicationBuilder app) =>
-        app.UseMiddleware<ExceptionHandlingMiddleware>();
     }
 }
