@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using RifleAssembly.Authentication.Web.Infrastructure.Services;
 
 namespace RifleAssembly.Authentication.Web.Extensions
@@ -40,6 +43,40 @@ namespace RifleAssembly.Authentication.Web.Extensions
 
                 o.AddSecurityRequirement(securityRequirement);
             });
+
+            return services;
+        }
+
+        public static IServiceCollection AddCustomOpenTelemetry(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddOpenTelemetry()
+                .ConfigureResource(resource => resource.AddService("Auth-service")
+                .AddAttributes(new Dictionary<string, object>
+                {
+                    ["deployment.environment"] = configuration["Environment"] ?? "development"
+                }))
+                .WithMetrics(metrics =>
+                {
+                    metrics
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddRuntimeInstrumentation()
+                    .AddPrometheusExporter();
+                })
+                .WithTracing(tracing =>
+                {
+                    tracing
+                    .AddAspNetCoreInstrumentation(options
+                        => options.Filter = (httpContext)
+                        => !httpContext.Request.Path.ToString().Contains("/metrics"))
+                    .AddHttpClientInstrumentation()
+                    .AddEntityFrameworkCoreInstrumentation()
+                    .AddOtlpExporter(options =>
+                    {
+                        options.Endpoint = new Uri(configuration["OpenTelemetry:Otlp:Endpoint"]!);
+                        options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.HttpProtobuf;
+                    });
+                });
 
             return services;
         }

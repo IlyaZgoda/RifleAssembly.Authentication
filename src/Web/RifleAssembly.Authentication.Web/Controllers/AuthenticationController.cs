@@ -24,26 +24,26 @@ namespace RifleAssembly.Authentication.Web.Controllers
     {
         private readonly ILdapService _ldap;
         private readonly ILogger<AuthenticationController> _logger;
-        private readonly ErrorToHttpMapper _mapper;
-        private readonly ProblemDetailsFactory _problemDetailsFactory;
+        private readonly ResultErrorHandler _resultErrorHandler;
 
         public AuthenticationController([FromKeyedServices(LdapServices.Mock)] ILdapService ldap, 
-            ILogger<AuthenticationController> logger, 
-            ErrorToHttpMapper mapper, 
-            ProblemDetailsFactory problemDetailsFactory)
+            ILogger<AuthenticationController> logger,
+            ResultErrorHandler resultErrorHandler)
         {
             _ldap = ldap;
             _logger = logger;
-            _mapper = mapper;
-            _problemDetailsFactory = problemDetailsFactory;
+            _resultErrorHandler = resultErrorHandler;
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody, Required] LoginRequest loginRequest) =>
+        public async Task<IActionResult> Login([FromBody][Required] LoginRequest loginRequest) =>
             await _ldap.AuthenticateAsync(loginRequest.Login, loginRequest.Password)
                 .Tap(token => _logger.LogInformation("Authentication successful for user: {Login}", loginRequest.Login),
-                    error => _logger.LogError("Authentication for user: {Login} failed with error: {Error}", loginRequest.Login, error.Description))
-                .ToActionResult(HttpContext, _mapper, _problemDetailsFactory);
+                    error => _logger.LogWarning("Authentication for user: {Login} failed with error: {Error}", loginRequest.Login, error.Description))
+                .Match(
+                    token => Ok(token),
+                    error => _resultErrorHandler.Handle(error, HttpContext)
+                );
     }
 
     [Route("api")]

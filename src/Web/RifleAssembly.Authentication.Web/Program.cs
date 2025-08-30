@@ -7,6 +7,8 @@ using RifleAssembly.Authentication.Web.Infrastructure;
 using RifleAssembly.Authentication.Web.Infrastructure.Factories;
 using RifleAssembly.Authentication.Web.Mappers;
 using RifleAssembly.Authentication.Web.Middleware;
+using Serilog;
+using System.Diagnostics;
 using System.Security.Cryptography;
 
 namespace RifleAssembly.Authentication.Web
@@ -17,10 +19,20 @@ namespace RifleAssembly.Authentication.Web
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Host.UseSerilog((context, services, configuration) =>
+                configuration
+                    .ReadFrom.Configuration(context.Configuration)
+                    .ReadFrom.Services(services)
+                    .Enrich.FromLogContext()
+                    .Enrich.WithProperty("ServiceName", "Auth-service")
+                    .Enrich.WithProperty("Environment", context.HostingEnvironment.EnvironmentName));
+
             // Add services to the container.
             builder.Services.AddSingleton<TokenProvider>();
             builder.Services.AddSingleton<ErrorToHttpMapper>();
             builder.Services.AddSingleton<ProblemDetailsFactory>();
+            builder.Services.AddSingleton<ResultErrorHandler>();
+            builder.Services.AddCustomOpenTelemetry(builder.Configuration);
             builder.Services.AddLdapServices();
             builder.Services.AddRazorPages();
             builder.Services.AddControllers();
@@ -34,7 +46,7 @@ namespace RifleAssembly.Authentication.Web
                     var publicKeyString = File.ReadAllText(publicKeyXml);
                     Console.WriteLine(publicKeyString);
                     rsa.FromXmlString(publicKeyString);
-
+                    
                     o.RequireHttpsMetadata = false;
                     o.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -52,8 +64,6 @@ namespace RifleAssembly.Authentication.Web
 
             var app = builder.Build();
 
-            //app.UseCustomExceptionHandlingMiddleware();
-
             app.UseExceptionHandler();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -63,20 +73,19 @@ namespace RifleAssembly.Authentication.Web
                     swaggerUiOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "RiffleAssembly.Authorization API"));
             }
 
-            app.MapGet("/api/health", () => Results.Ok("Healthy!!!!"));         
-
+            app.MapGet("/api/health", () => Results.Ok("Healthy!!!!"));
+            
             app.UseHttpsRedirection();
-
-
+            app.UseSerilogRequestLogging();
             app.UseRouting();
-
+            app.UseSerilogRequestLogging();
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();
             app.MapRazorPages()
                .WithStaticAssets();
-
+            app.MapPrometheusScrapingEndpoint();
             app.MapControllers();
             app.Run();
         }
