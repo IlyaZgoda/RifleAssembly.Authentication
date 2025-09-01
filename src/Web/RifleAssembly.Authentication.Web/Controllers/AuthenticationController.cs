@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RifleAssembly.Authentication.Web.Contracts;
 using RifleAssembly.Authentication.Web.Extensions;
 using RifleAssembly.Authentication.Web.Infrastructure.Factories;
 using RifleAssembly.Authentication.Web.Infrastructure.Services;
@@ -15,11 +16,11 @@ namespace RifleAssembly.Authentication.Web.Controllers
 {
     [Route("api")]
     [AllowAnonymous]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
-    [ProducesResponseType(StatusCodes.Status503ServiceUnavailable, Type = typeof(ProblemDetails))]
+    [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status503ServiceUnavailable)]
     public class AuthenticationController : ControllerBase
     {
         private readonly ILdapService _ldap;
@@ -41,7 +42,7 @@ namespace RifleAssembly.Authentication.Web.Controllers
                 .Tap(token => _logger.LogInformation("Authentication successful for user: {Login}", loginRequest.Login),
                     error => _logger.LogWarning("Authentication for user: {Login} failed with error: {Error}", loginRequest.Login, error.Description))
                 .Match(
-                    token => Ok(token),
+                    token => Ok(new TokenResponse(token)),
                     error => _resultErrorHandler.Handle(error, HttpContext)
                 );
     }

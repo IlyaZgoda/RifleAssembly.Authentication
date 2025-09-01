@@ -17,7 +17,7 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Factories
                 Extensions =
                 {
                     ["timestamp"] = DateTime.UtcNow,
-                    ["requestId"] = httpContext.TraceIdentifier
+                    ["traceId"] = httpContext.TraceIdentifier
                 }
             };
         }

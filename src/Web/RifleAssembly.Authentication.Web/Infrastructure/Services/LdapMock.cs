@@ -1,4 +1,5 @@
 ﻿using RifleAssembly.Authentication.Web.Errors;
+using RifleAssembly.Authentication.Web.Exceptions;
 using RifleAssembly.Authentication.Web.Students;
 using RifleAssembly.WebService.SharedKernel.Result;
 
@@ -13,7 +14,8 @@ namespace RifleAssembly.Authentication.Web.Infrastructure.Services
 
         public async Task<Result<string>> AuthenticateAsync(string login, string password)
         {
-            return await Task.FromResult(Result.Failure<string>(LdapErrors.InvalidCredentials));
+            //return await Task.FromResult(Result.Failure<string>(LdapErrors.InvalidCredentials));
+
             var student = new Student("Имит", "4.205-1", "Илья", "Згода", "Константинович", "Zgoda.51052");
             var token = _tokenProvider.Create(student);
             return await Task.FromResult(Result.Success(token));

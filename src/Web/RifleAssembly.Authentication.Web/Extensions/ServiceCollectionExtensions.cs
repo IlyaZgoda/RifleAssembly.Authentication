@@ -53,7 +53,7 @@ namespace RifleAssembly.Authentication.Web.Extensions
                 .ConfigureResource(resource => resource.AddService("Auth-service")
                 .AddAttributes(new Dictionary<string, object>
                 {
-                    ["deployment.environment"] = configuration["Environment"] ?? "development"
+                    ["deployment.environment"] = configuration["Environment"] ?? "Development"
                 }))
                 .WithMetrics(metrics =>
                 {

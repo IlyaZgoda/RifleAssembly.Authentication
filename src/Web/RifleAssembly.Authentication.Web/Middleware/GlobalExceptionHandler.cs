@@ -23,15 +23,15 @@ namespace RifleAssembly.Authentication.Web.Middleware
                 _ => LdapErrors.InternalServerError,
             };
 
-            var code = mapper.Map(error);
+            var statusCode = mapper.Map(error);
+            var problemDetails = problemDetailsFactory.CreateProblemDetails(error, statusCode, httpContext);
 
-            httpContext.Response.StatusCode = code;
+            httpContext.Response.StatusCode = statusCode;
+            httpContext.Response.ContentType = "application/problem+json";
 
-            return await problemDetailsService.TryWriteAsync(new ProblemDetailsContext
-            {
-                HttpContext = httpContext,
-                ProblemDetails = problemDetailsFactory.CreateProblemDetails(error, code, httpContext)
-            });
+            await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+
+            return true;
         }
     }
 }

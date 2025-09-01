@@ -8,6 +8,7 @@ using RifleAssembly.Authentication.Web.Infrastructure.Factories;
 using RifleAssembly.Authentication.Web.Mappers;
 using RifleAssembly.Authentication.Web.Middleware;
 using Serilog;
+using Serilog.Enrichers.Span;
 using System.Diagnostics;
 using System.Security.Cryptography;
 
@@ -24,6 +25,7 @@ namespace RifleAssembly.Authentication.Web
                     .ReadFrom.Configuration(context.Configuration)
                     .ReadFrom.Services(services)
                     .Enrich.FromLogContext()
+                    .Enrich.WithSpan()
                     .Enrich.WithProperty("ServiceName", "Auth-service")
                     .Enrich.WithProperty("Environment", context.HostingEnvironment.EnvironmentName));
 
